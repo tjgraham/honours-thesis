@@ -1,0 +1,50 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Figure: Backward Induction in Battle of the Sexes                            %
+% ---------------------------------------------------------------------------- %
+
+
+\begin{istgame}[font=\small]
+    % Grow East
+    \setistgrowdirection'{east}
+
+
+
+    % Player 1
+    \xtdistance{30mm}{25mm}
+
+    \istroot(0)<[yshift=15pt]>{Player 1}
+        % Football
+        \istb[draw=color2]{Football}[above, sloped, yshift=-2pt, font=\scriptsize]
+        
+        % Concert
+        \istb[dotted]{Concert}[above, sloped, yshift=-2pt, font=\scriptsize]
+    \endist
+
+
+
+    % Player 2
+    \xtdistance{30mm}{12mm}
+    
+    \istroot(1)(0-1)<[yshift=15pt]>{Player 2}
+        % Football
+        \istb[draw=color4]{Football}[above, sloped, yshift=-2pt, font=\scriptsize]{$(2, 1)$}
+        
+        % Concert
+        \istb[dotted]{Concert}[above, sloped, yshift=-2pt, font=\scriptsize]{$(0, 0)$}
+    \endist
+
+    \istroot(2)(0-2){}
+        % Football 
+        \istb[dotted]{Football}[above, sloped, yshift=-2pt, font=\scriptsize]{$(0, 0)$}
+        
+        % Concert
+        \istb[draw=color4]{Concert}[above, sloped, yshift=-2pt, font=\scriptsize]{$(1, 2)$}
+    \endist
+    
+    % Information Sets
+    \xtInfosetO[fill=color2!25](0)(0) % Player 1
+    \xtInfosetO[fill=color4!25](1)(1) % Player 2
+    \xtInfosetO[fill=color4!25](2)(2) % Player 2
+
+\end{istgame}

@@ -1,0 +1,80 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Chapter 1 - Introduction                                                     %
+% ---------------------------------------------------------------------------- %
+
+\chapter{Introduction} \label{chp:introduction}
+    Often, in a repeated strategic situation whose outcome is dependent on the skill of its participants, we might expect these participants to improve their skills by learning or training.
+    Consider, for instance, a tennis player who must practice to increase their competitive performance or a military that must invest to increase their capabilities.
+    These seemingly disparate examples share two common characteristics: short-term skill-dependent interactions with opponents (tennis matches or military engagements) and long-term opportunities to improve skills (practicing tennis shots or investing in military equipment).
+    We are interested in studying situations with these characteristics from both a short-term perspective and a long-term perspective; that is, we want to provide insight into the strategies that can be employed to achieve desired outcomes.
+
+    A natural quantitative framework to explore this problem is provided by game theory, which investigates strategic interactions between rational agents whose objectives are not necessarily aligned.
+    This mathematical notion of a game, inspired by its namesake, consists of multiple players who select actions with the intention of maximising their rewards.
+    The modern game-theoretic paradigm was introduced in 1928 by von Neumann's ``On the Theory of Games of Strategy'' \parencite{vonNeumann1959} and popularised in 1944 by von Neumann and Morgenstern's ``Theory of Games and Economic Behaviour'' \parencite{vonNeumann2004}.
+    Although their methodology was originally presented in the context of economic applications, it has become a useful tool for analysing problems in a variety of other domains, including political science, theoretical biology, and military planning \parencite{Maschler2013}.
+    Here, we will motivate our discussion of skill by reviewing the evolution and applications of game theory.
+
+    Unsurprisingly, several mathematical discussions of strategy---often in the context of parlour games---predate the methodology of modern game theory.
+    Note that, similar to von Neumann and Morgenstern's \parencite{vonNeumann2004} contributions, these discussions predominantly focus on two-player zero-sum games, or games in which total rewards are conserved.
+    The earliest application of a minimax solution, a pair of strategies that minimise each player's maximum loss, is attributed to Waldegrave's analysis of a two-player variant of the card game \textit{Le Her} in 1713 \parencite{Dimand1992}.
+    Precisely, each player is assigned a strategy that maximises their probability of winning regardless of their opponent's choices.
+    Although Waldegrave expresses scepticism of the solution's need to randomise (or mix) over actions, these mixed strategies play a critical role in further developments \parencite{Dimand1992}.
+    Indeed, Borel \parencite{Borel1921} allows players to randomise over their actions in games whose ``winnings depend [symmetrically] both on chance and the skill of the players.''
+    The existence of a minimax solution is proved in \parencite{Borel1921} and \parencite{Borel1924} under the assumption that players possess three and five actions, respectively.
+    Borel \parencite{Borel1927} concludes by speculating that a minimax solution exists when players have seven available actions; however, he remains unconvinced as to whether the statement can be generalised to arbitrary finite collections of actions.
+
+    The scope of the problem is widened by von Neumann \parencite{vonNeumann1959} to include two-player zero-sum games with finitely many actions and arbitrary, not necessarily symmetric, rewards.
+    It is demonstrated, by way of a counterexample, that a minimax solution might not exist when players are restricted to using non-randomised (or pure) strategies.
+    Then, in a similar vein to Borel \parencite{Borel1921}, this motivates the need for unpredictable behaviour in the form of mixed strategies.
+    The mathematical details behind this ``shift'' are justified by von Neumann and Morgenstern's \parencite{vonNeumann2004} axiomatisation of player preferences and utility functions.
+    Consequently, von Neumann \parencite{vonNeumann1959} answers Borel's \parencite{Borel1927} earlier question in the affirmative; that is, he shows that a minimax solution exists in mixed strategies for any two-player zero-sum game.
+    The concept of minimising a player's maximum loss, despite its successful application to zero-sum environments, begins to present problems in non-zero-sum (or general-sum) games.
+    Although a minimax solution to a zero-sum game is stable in the sense that neither player has an incentive to deviate, the same cannot be said for the general-sum case \parencite{Maschler2013}.
+    Instead, Nash \parencite{Nash1950} introduces the now-ubiquitous Nash equilibrium, which guarantees that a player cannot benefit from unilaterally deviating from their prescribed strategy.
+    The existence of a Nash equilibrium is proved for any general-sum game with finitely many actions \parencite{Nash1950}.
+    Note that, since the set of minimax solutions and set of equilibria belonging to a zero-sum game are identical, we will henceforth prefer the terminology ``equilibrium'' over ``minimax solution''.
+
+    What does an equilibrium tell us when game theory is applied to real-world situations?
+    Well, the answer depends on the lens through which equilibria are viewed; there are two possible interpretations:
+    \begin{itemize}
+        \item \textbf{Descriptive}, the view that game theory predicts (human or non-human) strategies, and
+        \item \textbf{Normative}, the view that game theory recommends ``best'' strategies \parencite{Wooldridge2012}.
+    \end{itemize}
+    Here, by approaching the task of ``solving'' a game as individually recommending strategies to its players, we will adopt a normative interpretation of game theory.
+    This viewpoint is particularly successful in zero-sum settings because equilibria offer both stability, dissuading unilateral deviations, and security, guaranteeing a minimum reward \parencite{Maschler2013}.
+    The security of equilibria is not necessary in general-sum games and, as a consequence, different equilibria might confer different rewards.
+    A normative approach encounters problems when needing to compare these rewards and nominate a ``best'' equilibrium \parencite{Maschler2013}.\footnote{A
+        response to the difficulty of recommending ``best'' strategies in general-sum games is to modify the concept of an equilibrium.
+        For example, the subgame perfect equilibrium is an equilibrium refinement and the correlated equilibrium is an equilibrium generalisation (see \parencite[Chapter 7, Chapter 8]{Maschler2013}).
+    }
+
+    Of course, whenever our intention is to suggest suitable strategies to a player, we should always account for their ability to implement these recommendations.
+    Larkey, Kadane, Austin, and Zamir \parencite{Larkey1997} observe that, in traditional game theoretic discussions, ``[t]he cognitive or physical difficulties for players in devising and executing strategies for playing particular games are essentially assumed away.''
+    Then, seeking to identify the difficulties a player might encounter, they propose a typology of skill consisting of:
+    \begin{itemize}
+        \item \textbf{Strategic Skill}, the ability to select which games should be played,
+        \item \textbf{Planning Skill}, the ability to develop a desirable strategy within a game, and
+        \item \textbf{Execution Skill}, the ability to execute desired actions throughout a game.
+    \end{itemize}
+    Larkey et al. \parencite{Larkey1997} apply their typology to experimentally compare strategies in ``Sum Poker'' under different skill limitations; however, a precise description of skill is not provided.
+    We are only interested in further exploring execution skill because strategic skill is not critical in individual games and planning skill is not critical in normative game theory.
+
+    A mathematical framework that incorporates execution skill---or lack thereof---is provided by Beck and Filar \parencite{Beck2007} for zero-sum settings and Beck, Ejov, and Filar \parencite{Beck2012} for general-sum settings.
+    Essentially, a notion of incompetence is introduced that quantifies a player's tendency to accidentally deviate from their intended actions.
+    The key advantage of incompetence, despite being superficially similar to Selten's \parencite{Selten1975} concept of a ``slight mistake'' (or, as it has since been called, a trembling hand), is that it is expressly designed to describe execution skill.
+    Conversely, the motivation behind Selten's \parencite{Selten1975} discussion of accidental deviations is to define an equilibrium refinement.
+    So, while a trembling hand involves players making mistakes with negligible probability, incompetence allows players to make mistakes according to arbitrary probability distributions.
+
+    The application of incompetence to military planning is discussed by Beck in \parencite{Beck2013} and \parencite{Beck2011}.
+    Moreover, within the context of evolutionary biology, incompetence has been applied by Kleshnina, Filar, Ejov, and McKerral in \parencite{Kleshnina2018} to study the behaviour and adaptation of species that are prone to mistakes.
+    Kleshnina, Streipert, Filar, and Chatterjee \parencite{Kleshnina2020} also study the optimal stepwise learning strategies in evolutionary games under incompetence.
+
+    Presently, our main objective is to further explore the nature of incompetence in zero-sum games from a normative perspective.
+    \autoref{chp:game-theory} begins by reviewing the relevant mathematical concepts in traditional games and incompetent games.
+    Recall that, in the earlier examples of a tennis player and a military force, a distinction was established between short-term and long-term strategies.
+    The short-term strategic horizon, which involves optimally playing games under incompetence, is discussed in \autoref{chp:a-strategic-perspective}.
+    This mainly investigates various properties of incompetence by building upon the already-established properties from \parencite{Beck2013} and \parencite{Beck2007}.
+    Additionally, the long-term strategic horizon, which involves improving execution skill and modifying incompetence, is discussed in \autoref{chp:incremental-learning}.
+    We describe a model of incremental learning, develop a backward induction technique to compute equilibria, and apply this process to a simple tennis game from \parencite{Beck2013}.
+    The overarching goal is that, by understanding the short-term and long-term strategic considerations, we can create better strategies to mitigate and reduce incompetence.

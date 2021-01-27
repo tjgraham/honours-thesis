@@ -1,0 +1,102 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Figure: Equilibrium in a Simple Tennis Game with Incremental Learning        %
+% ---------------------------------------------------------------------------- %
+
+\begin{tikzpicture}
+    \newcommand\SCL{0.8}
+
+    % Labels
+    \node[rotate=90] (P1) at (\SCL * -1.5, \SCL * 3) {Player 1};
+    \foreach \j in {1,2,3,4}
+        \node[] (L\j) at (\SCL * -0.5, \SCL * \j) {$\nicefrac{\j}{5}$};
+    \node[] (L0) at (\SCL * -0.5, 0) {$0$};
+    \node[] (L5) at (\SCL * -0.5, \SCL * 5) {$1$};
+
+
+    \node[] (P2) at (\SCL * 3, \SCL * 6.5) {Player 2};
+    \foreach \i in {1,2,3,4}
+        \node[] (M\i) at (\SCL * \i, \SCL * 5.5) {$\nicefrac{\i}{5}$};
+    \node[] (M0) at (0, \SCL * 5.5) {$0$};
+    \node[] (M0) at (\SCL * 5, \SCL * 5.5) {$1$};
+
+    \node[rotate=90] at (7.35, 2.25) {\tiny $2.76 \times 10^{-3}$};
+    \node[rotate=45] at (8.5, 2.5) {\tiny $7.68 \times 10^{-6}$};
+    \node[] at (8.75, 1.55) {\tiny $2.76 \times 10^{-3}$};
+    \node[] at (9.25, 0.5) {\tiny $9.94 \times 10^{-1}$};
+
+    \begin{scope}[spy using outlines={rectangle, magnification=2.5, size=1cm, connect spies}]
+
+    % Vertex Style
+    \tikzset{vertex/.style = {
+        draw,
+        shape=circle,
+        inner sep=0pt,
+        minimum size=7pt
+    }}
+
+    \tikzset{bigvertex/.style = {
+        draw,
+        shape=circle,
+        inner sep=0pt,
+        minimum size=14pt
+    }}
+    
+    % Empty Vertex Style
+    \tikzset{empty/.style = {
+        inner sep=0pt,
+        minimum size=7pt,=
+    }}
+
+    % Edge Style
+    \tikzset{edge/.style = {
+        ->,
+        > = latex',
+        shorten <=7pt,
+        shorten >=7pt
+    }}
+
+    % Diagonal Edge Style
+    \tikzset{diagonal/.style = {
+        ->,
+        > = latex',
+        shorten <=10pt,
+        shorten >=10pt
+    }}
+
+    % Nodes
+    \foreach \i in {0,1,2,3,4,5}
+        \foreach \j in {0,1,2,3,4,5}
+            \node[vertex] (\i, \j) at (\SCL * \i, \SCL* \j) {};
+
+    % Edges
+    \foreach \i in {0,1,2,3,4}
+        \foreach \j in {5}
+            \draw[edge] (\SCL * \i, \SCL * \j) to (\SCL * \i + \SCL, \SCL * \j);
+
+    \foreach \j in {0,1,2,3,4}
+        \foreach \i in {5}
+            \draw[edge] (\SCL * \i, \SCL * \j) to (\SCL * \i, \SCL * \j + \SCL);
+
+    \foreach \j in {0}
+        \foreach \i in {1,2,3,4}
+            \draw[diagonal] (\SCL * \i, \SCL * \j) to (\SCL * \i + \SCL, \SCL * \j + \SCL);
+
+    \foreach \j in {1,2,3,4}
+        \foreach \i in {0,1,2,3,4}
+            \draw[diagonal] (\SCL * \i, \SCL * \j) to (\SCL * \i + \SCL, \SCL * \j + \SCL);
+
+    \draw[edge] (0, 0) to [out=330,in=300,loop] (0, 0);
+    \draw[edge] (0, 0) to (\SCL, 0);
+    \draw[edge] (0, 0) to (0, \SCL) {};
+    \draw[diagonal] (0, 0) to (\SCL, \SCL);
+    \draw[edge] (\SCL * 5, \SCL * 5) to [out=330,in=300,loop] (\SCL * 5, \SCL * 5);
+
+    \node[] (Z) at (0.5 * \SCL, 0.4 * \SCL) {};
+    \spy[color4, width=4cm, height=4cm] on (Z) in node at (8.7, 2);
+
+    \end{scope}
+
+
+
+\end{tikzpicture}

@@ -1,0 +1,97 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Document Preamble                                                            %
+% ---------------------------------------------------------------------------- %
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{preamble}[2020/09/10 Abbreviations and Commands]
+
+% Graphics
+\RequirePackage{graphicx}
+\RequirePackage{pgf}
+\RequirePackage{tikz}
+\RequirePackage{istgame}
+\usetikzlibrary{calc,spy}
+\setistmathTF001
+
+
+% Mathematics
+\RequirePackage[tbtags]{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{mathtools}
+\RequirePackage{relsize}
+
+
+
+% Blackboard Bold
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+
+
+% Script
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calB}{\mathcal{B}}
+\newcommand{\scrC}{\mathcal{C}}
+\newcommand{\scrE}{\mathcal{E}}
+\newcommand{\calS}{\mathcal{S}}
+
+
+
+
+% Vectors & Matrices
+\renewcommand*{\vec}[1]{\mathbf{#1}}
+\newcommand*{\transp}{{\scriptscriptstyle \mathsf{T}}}
+\newcommand{\inv}{{\mathsmaller{-1}}}
+
+
+
+% Game Theory
+\DeclareMathOperator{\val}{val}
+
+
+
+% Analysis
+\DeclareMathOperator{\Int}{Int}
+\DeclareMathOperator{\Bnd}{\partial}
+\newcommand{\ball}[2]{\mathrm{B}_{#1}(#2)}
+
+
+
+% Small Math Symbols
+\newcommand{\ms}[1]{{\mathsmaller{#1}}}
+
+\newcommand{\sdagger}{{\mathsmaller{\dagger}}}  % Small Dagger
+\newcommand{\sdiamond}{{\mathsmaller{\diamond}}}  % Small Diamond
+\newcommand{\sbeta}{{\mathsmaller{\beta}}}
+
+
+% Miscellaneous
+\newcommand{\funcdot}{\mathmakebox[1ex]{\cdot}}
+\newcommand{\Mu}{\mathrm{M}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+
+
+% Nomenclature
+\RequirePackage[intoc]{nomencl}
+\renewcommand{\nomname}{Notation}
+\makenomenclature
+
+\RequirePackage{etoolbox}
+\renewcommand\nomgroup[1]{%
+    \item[\bfseries
+    \ifstrequal{#1}{A}{Normal-Form Games}{
+    \ifstrequal{#1}{B}{Bimatrix Games}{
+    \ifstrequal{#1}{C}{Matrix Games}{
+    \ifstrequal{#1}{D}{Incompetent Games}{
+    \ifstrequal{#1}{E}{Parameterised Incompetent Games}{
+    \ifstrequal{#1}{F}{Stochastic Games}{
+    \ifstrequal{#1}{G}{Incremental Learning Games}{}   
+    }}}}}}
+    ]
+}
+
+\def\pagedeclaration#1{\hfill \hyperlink{page.#1}{#1}}

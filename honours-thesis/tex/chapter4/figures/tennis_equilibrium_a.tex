@@ -1,0 +1,79 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Figure: Equilibrium in a Simple Tennis Game with Incremental Learning        %
+% ---------------------------------------------------------------------------- %
+
+\begin{tikzpicture}
+    \newcommand\SCL{0.8}
+
+    % Vertex Style
+    \tikzset{vertex/.style = {
+        draw,
+        shape=circle,
+        inner sep=0pt,
+        minimum size=7pt
+    }}
+    
+    % Empty Vertex Style
+    \tikzset{empty/.style = {
+        inner sep=0pt,
+        minimum size=7pt,=
+    }}
+
+    % Edge Style
+    \tikzset{edge/.style = {
+        ->,
+        > = latex',
+        shorten <=7pt,
+        shorten >=7pt
+    }}
+
+    % Diagonal Edge Style
+    \tikzset{diagonal/.style = {
+        ->,
+        > = latex',
+        shorten <=10pt,
+        shorten >=10pt
+    }}
+
+    % Nodes
+    \foreach \i in {0,1,2,3,4,5}
+        \foreach \j in {0,1,2,3,4,5}
+            \node[vertex] (\i, \j) at (\SCL * \i, \SCL* \j) {};
+
+    % Edges
+    \foreach \i in {0,1,2,3,4}
+        \foreach \j in {5}
+            \draw[edge] (\SCL * \i, \SCL * \j) to (\SCL * \i + \SCL, \SCL * \j);
+
+    \foreach \j in {0,1,2,3,4}
+        \foreach \i in {5}
+            \draw[edge] (\SCL * \i, \SCL * \j) to (\SCL * \i, \SCL * \j + \SCL);
+
+    \foreach \j in {0}
+        \foreach \i in {1,2,3,4}
+            \draw[diagonal] (\SCL * \i, \SCL * \j) to (\SCL * \i + \SCL, \SCL * \j + \SCL);
+
+    \foreach \j in {1,2,3,4}
+        \foreach \i in {0,1,2,3,4}
+            \draw[diagonal] (\SCL * \i, \SCL * \j) to (\SCL * \i + \SCL, \SCL * \j + \SCL);
+
+    \draw[edge] (0, 0) to [out=330,in=300,loop] (0, 0);
+    \draw[edge] (\SCL * 5, \SCL * 5) to [out=330,in=300,loop] (\SCL * 5, \SCL * 5);
+
+
+    % Labels
+    \node[rotate=90] (P1) at (\SCL * -1.5, \SCL * 3) {Player 1};
+    \foreach \j in {1,2,3,4}
+        \node[] (L\j) at (\SCL * -0.5, \SCL * \j) {$\nicefrac{\j}{5}$};
+    \node[] (L0) at (\SCL * -0.5, 0) {$0$};
+    \node[] (L5) at (\SCL * -0.5, \SCL * 5) {$1$};
+
+
+    \node[] (P2) at (\SCL * 3, \SCL * 6.5) {Player 2};
+    \foreach \i in {1,2,3,4}
+        \node[] (M\i) at (\SCL * \i, \SCL * 5.5) {$\nicefrac{\i}{5}$};
+    \node[] (M0) at (0, \SCL * 5.5) {$0$};
+    \node[] (M0) at (\SCL * 5, \SCL * 5.5) {$1$};
+
+\end{tikzpicture}

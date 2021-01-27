@@ -1,0 +1,83 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% ---------------------------------------------------------------------------- %
+% Author: Thomas Graham                                                        %
+% ---------------------------------------------------------------------------- %
+
+\RequirePackage[l2tabu, orthodox]{nag}
+
+\documentclass[oneside]{thesis}
+\usepackage[utf8]{inputenc}
+
+\usepackage{preamble}
+
+\usepackage[style=trad-abbrv, isbn=false, doi=false, url=false, sorting=nyt, backend=bibtex]{biblatex}
+\addbibresource{references.bib}
+
+% Hyperref
+\RequirePackage{hyperref}
+\def\chapterautorefname{Chapter}  % Chapter
+\def\sectionautorefname{Section}  % Section
+\def\figureautorefname{Figure}  % Figure
+\def\subfigureautorefname{Figure}  % Sub-Figure
+\def\theoremautorefname{Theorem}  % Theorem
+\def\algorithmautorefname{Algorithm}  % Algorithm
+
+
+
+\begin{document}
+
+    \frontmatter
+
+        % Title Page
+        \include{tex/frontmatter/titlepage}
+
+        % Abstract
+        \include{tex/frontmatter/abstract}
+
+        % Table of Contents
+        \tableofcontents
+        \newpage
+
+        % List of Figures
+        \listoffigures
+        \newpage
+
+        % List of Tables
+        \listoftables
+        \newpage
+
+        % Nomenclature
+        \markboth{\nomname}{\nomname}
+        \printnomenclature[0.525in]
+
+    \mainmatter
+
+        % Chapter 1
+        \include{tex/chapter1/chapter1}
+
+        % Chapter 2
+        \include{tex/chapter2/chapter2}
+
+        % Chapter 3
+        \include{tex/chapter3/chapter3}
+
+        % Chapter 4
+        \include{tex/chapter4/chapter4}
+
+        % Chapter 5
+        \include{tex/chapter5/chapter5}
+
+    \backmatter
+
+        \chapter*{References}
+        \addcontentsline{toc}{chapter}{References}
+        \chaptermark{References}
+
+        \defbibheading{referencessection}{}
+        
+        % Bibliography
+        \printbibliography[title=References, heading=referencessection]
+
+
+\end{document}

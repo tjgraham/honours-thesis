@@ -1,0 +1,28 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Chapter 5 - Conclusion                                                       %
+% ---------------------------------------------------------------------------- %
+
+\chapter{Conclusion}
+    Adopting the perspective of normative game theory, we sought to address the strategic considerations arising from execution skill, or the possibility that a player accidentally deviates from their intended action.
+    The mathematical notion of an incompetent matrix game, which was introduced by Beck and Filar \parencite{Beck2007}, captured these accidental deviations as probability distributions over a player's available actions.
+    We explored the properties of incompetent games in \autoref{chp:a-strategic-perspective} and the ``best'' learning strategies in \autoref{chp:incremental-learning}.
+
+    First, when exploring properties of incompetent games in \autoref{chp:a-strategic-perspective}, we focused on two interesting features: game value plateaus and optimal learning parameters.
+    These problems were addressed by viewing incompetence as modifying each player's strategy space---to create the space of executable strategies---instead of modifying each player's expected utility.
+    Accordingly, we were able to show that rectangular game value plateaus (as in \autoref{fig:parameterised-incompetent-games}) arise whenever a pair of learning parameters create a completely mixed incompetent game.
+    Additionally, under the assumption that complete competence is achievable, we proved that a learning parameter is optimal if and only if the corresponding space of executable strategies contains a competent optimal strategy.
+    However, the established optimality conditions do not always apply and, as a consequence, further investigation might explore learning parameter choices in situations where competent optimal strategies are never executable.
+    Furthermore, since the multi-stage game from \autoref{sec:optimal-learning-parameters} was free of cost, a possible extension could involve adding learning costs and finding properties of the resulting equilibria.
+
+    Second, in \autoref{chp:incremental-learning}, we attempted to find the ``best'' learning strategies for playing incompetent games.
+    An incremental learning model was proposed that required two players to repeatedly play an incompetent game with opportunities to increment their learning parameters between stages.
+    We were able to leverage the resulting transition structure to apply a backward induction algorithm and exhaustively compute equilibria.
+    Precisely, while traditional backward induction cannot be applied because incremental learning unfolds over infinitely many stages, we instead iterate through the game's finite collection of states.
+    A simple tennis game was shown as an example of the potential strategic insights gained from understanding the equilibria in incremental learning games.
+    Of course, given that we were primarily focused on finding methods to solve these games, we did not attempt to characterise structural patterns present in their equilibria.
+    So, future research might explore the properties of the ``best'' learning strategies with the goal of developing easy-to-apply learning heuristics.
+
+    Overall, we have demonstrated the usefulness of the incompetence concept in modelling execution skill and expanded the scope of learning dynamics to include incremental learning.
+    We provided insight into various properties of incompetence using executable strategies and insight into incremental learning strategies using backward induction.
+    Hopefully, through continued incorporation of skill, the recommendations obtained from game-theoretic analysis will become more realistic and robust.

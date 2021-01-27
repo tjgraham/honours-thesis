@@ -1,0 +1,85 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Figure: Structure of an Incremental Learning Game                            %
+% ---------------------------------------------------------------------------- %
+
+\begin{tikzpicture}
+    % Vertex Style
+    \tikzset{vertex/.style = {
+        draw,
+        shape=circle,
+        inner sep=0pt,
+        minimum size=7pt
+    }}
+    
+    % Empty Vertex Style
+    \tikzset{empty/.style = {
+        inner sep=0pt,
+        minimum size=7pt,=
+    }}
+
+    % Edge Style
+    \tikzset{edge/.style = {
+        ->,
+        > = latex',
+        shorten <=7pt,
+        shorten >=7pt
+    }}
+
+    % Diagonal Edge Style
+    \tikzset{diagonal/.style = {
+        ->,
+        > = latex',
+        shorten <=10pt,
+        shorten >=10pt
+    }}
+
+    % Nodes
+    \foreach \i in {0,1,2,3,4,6}
+        \foreach \j in {0,1,2,3,4,6}
+            \node[vertex] (\i, \j) at (\i, \j) {};
+
+    \foreach \i in {0,1,2,3,4,5,6}
+        \node[empty] (\i, 4) at (\i, 4) {};
+
+    \foreach \j in {0,1,2,3,4,6}
+        \node[empty] (4, \j) at (4, \j) {};
+
+    % Edges
+    \foreach \i in {0,1,2,3,4,5}
+        \foreach \j in {0,1,2,3,4,6}
+            \draw[edge] (\i, \j) to (\i + 1, \j);
+    
+    \foreach \j in {0,1,2,3,4,5}
+        \foreach \i in {0,1,2,3,4,6}
+            \draw[edge] (\i, \j) to (\i, \j + 1);
+    
+    \foreach \j in {0,1,2,3,4,5}
+        \foreach \i in {\j,...,5}
+            \draw[diagonal] (\i, \j) to (\i + 1, \j + 1);
+    
+    \foreach \j in {1,2,3,4,5}
+        \foreach \i in {1,...,\j}
+            \draw[diagonal] (\i - 1, \j) to (\i, \j + 1);
+
+    \foreach \i in {0,1,2,3,4,6}
+        \foreach \j in {0,1,2,3,4,6}
+            \draw[edge] (\i, \j) to [out=330,in=300,loop] (\i, \j);
+
+    % Labels
+    \node[rotate=90] (P1) at (-1.5, 3) {Player 1};
+    \node[] (L1) at (-0.5, 0) {$\lambda_1$};
+    \node[] (L2) at (-0.5, 1) {$\lambda_2$};
+    \node[] (L3) at (-0.5, 2) {$\lambda_3$};
+    \node[] (L4) at (-0.5, 3) {$\lambda_4$};
+    \node[] (L5) at (-0.5, 4) {$\lambda_5$};
+    \node[] (L6) at (-0.5, 6) {$\lambda_{n_1}$};
+
+    \node[] (P2) at (3, 7.5) {Player 2};
+    \node[] (M1) at (0, 6.5) {$\mu_1$};
+    \node[] (M2) at (1, 6.5) {$\mu_2$};
+    \node[] (M3) at (2, 6.5) {$\mu_3$};
+    \node[] (M4) at (3, 6.5) {$\mu_4$};
+    \node[] (M5) at (4, 6.5) {$\mu_5$};
+    \node[] (M6) at (6, 6.5) {$\mu_{n_2}$};
+\end{tikzpicture}

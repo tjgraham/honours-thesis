@@ -1,0 +1,23 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Figure: Executable Strategies in "Rock, Paper, Scissors"                     %
+% ---------------------------------------------------------------------------- %
+
+\begin{tikzpicture}
+    % Player 1
+    \node (P1) at (2, -1) {$\vec{E}_1(Q_1)$}; 
+    \draw (0, 0)        node[anchor=north] {$(1, 0, 0)$}
+       -- (4, 0)        node[anchor=north] {$(0, 0, 1)$}
+       -- (2, 3.464)    node[anchor=south] {$(0, 1, 0)$}
+       -- cycle;
+    \draw [fill=color2!25] (1, 0.577) -- (2, 2.309) -- (3, 0.577) -- cycle;
+
+    % Player 2
+    \node (P2) at (8,-1) {$\vec{E}_2(Q_2)$};
+    \draw (6, 0)       node[anchor=north] {$(1, 0, 0)$}
+       -- (10, 0)      node[anchor=north] {$(0, 0, 1)$}
+       -- (8, 3.464)   node[anchor=south] {$(0, 1, 0)$}
+       -- cycle;
+    \draw [fill=color4!25] (9.333, 1.155) -- (7.333, 0) -- (7.333, 2.309) -- cycle;
+
+\end{tikzpicture}

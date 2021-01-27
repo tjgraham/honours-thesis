@@ -1,0 +1,907 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Chapter 4 - Incremental Learning                                             %
+% ---------------------------------------------------------------------------- %
+
+\chapter{Incremental Learning}  \label{chp:incremental-learning}
+    It is often necessary to model the interaction of learning and playing through complex mechanisms.
+    Consider, for instance, an athlete who must train between competitions or a poker player who must practice between tournaments.
+    How can we describe these situations game theoretically?
+    Our proposed solution is an incremental learning game in which, between repeated plays of an incompetent game, a player may increment their learning parameters to modify their incompetence.
+
+    We will begin in \autoref{sec:stochastic-games} by explaining stochastic games, the general framework used in the formulation of incremental learning.
+    Then, \autoref{sec:incremental-learning-games} defines the incremental learning model and \autoref{sec:backward-induction} and \autoref{sec:finding-extensions} propose a backward induction algorithm for computing equilibria.
+    Lastly, this procedure is applied in \autoref{sec:incremental-learning-in-tennis} to analyse learning strategies in a simplified tennis game.
+
+
+
+\section{Stochastic Games} \label{sec:stochastic-games}
+    Firstly, before adding incremental learning to an incompetent game, we should explain the stochastic game model introduced by Shapley \parencite{Shapley1953}.
+    This is a mathematical framework for describing situations wherein multiple bimatrix games are played sequentially with player-influenced transitions.
+    We will adopt the conventions used in Chapter 3 and Chapter 4 of \parencite{Filar1997} to accommodate some additional notation and, in particular, player association in a stochastic game will be indicated using a superscript.
+
+    A two-player \emph{stochastic game} $\Gamma = (\calS, \calA, \calB, r^1, r^2, p)$ evolves over a collection of \emph{stages} $t = 0, 1, 2, \ldots$ and visits a \emph{state} $S_t$ at every stage.
+    \nomenclature[F, 01]{$\Gamma$}{A stochastic game. \nomrefpage}%
+    We view $\{S_t\}_{t = 0}^{\infty}$ as a stochastic process that takes its values from a finite set $\calS$ called the \emph{state space}.
+    \nomenclature[F, 02]{$\calS$}{The state space of $\Gamma$. \nomrefpage}%
+    \nomenclature[F, 03]{$S_t$}{The state realised at stage $t = 0, 1, 2, \ldots$ of $\Gamma$. \nomrefpage}%
+    If the game is in state $s \in \calS$, then Player 1 and Player 2 must simultaneously choose \emph{actions} from the finite sets $\calA(s)$ and $\calB(s)$, respectively.
+    \nomenclature[F, 04]{$\calA(s)$}{The set of actions belonging to Player 1 at $s \in \calS$ in $\Gamma$. \nomrefpage}%
+    \nomenclature[F, 05]{$\calB(s)$}{The set of actions belonging to Player 2 at $s \in \calS$ in $\Gamma$. \nomrefpage}%
+    These choices are captured in the stochastic processes $\{A_t\}_{t = 0}^\infty$ and $\{B_t\}_{t = 0}^\infty$ where, at any stage $t = 0, 1, 2, \ldots$, the random variable $A_t$ gives Player 1's action and the random variable $B_t$ gives Player 2's action.
+    \nomenclature[F, 06]{$A_t$}{The action realised by Player 1 at state $t = 0, 1, 2, \ldots$ of $\Gamma$. \nomrefpage}%
+    \nomenclature[F, 07]{$B_t$}{The action realised by Player 2 at state $t = 0, 1, 2, \ldots$ of $\Gamma$. \nomrefpage}%
+    Consequently, the event $\{S_t = s, A_t = a, B_t = b\}$ corresponds to Player 1 choosing action $a \in \calA(s)$ and Player 2 choosing action $b \in \calB(s)$ at stage $t = 0, 1, 2, \ldots$ and in state $s \in \calS$.
+
+    After a pair of actions have been selected, the players are awarded utility and the game transitions to a potentially different state.
+    Suppose that, at the stage $t = 0, 1, 2, \ldots$, the game is in state $S_t = s \in \calS$, Player 1's action is $A_t = a \in \calA(s)$, and Player 2's action is $B_t = b \in \calB(s)$.
+    The \emph{immediate utility} allocations are denoted by $r^1(s, a, b)$ for Player 1 and $r^2(s, a, b)$ for Player 2.
+    \nomenclature[F, 08]{$r^k$}{The immediate utility function belonging to Player $k \in \{1, 2\}$ in $\Gamma$. \nomrefpage}%
+    Then, the next state $S_{t + 1}$ is determined randomly with the \emph{transition probability}
+    \begin{equation} \label{eq:transition-probabilities}
+        p(s' | s, a, b)
+            = \PP (S_{t + 1} = s' | S_t = s, A_t = a, B_t = b)
+    \end{equation}
+    being the probability that $s' \in \calS$ is drawn.
+    \nomenclature[F, 09]{$p$}{The transition probability function of $\Gamma$. \nomrefpage}%
+    The quantity $p(s' | s, a, b)$ is well-defined because it is assumed that the transition dynamics are Markovian; that is, they are   calculated using only the current state $S_t$, Player 1's action $A_t$, and Player 2's action $B_t$.
+
+    We are mostly interested in the space of \emph{stationary strategies}, which are strategies that depend only on the current state.\footnote{This
+        definition of a strategy can be generalised to obtain Markov strategies, which may depend on the current state, and behaviour strategies, which may depend on the game's history.
+        Fortunately, a suitable equilibrium solution always exists in the space of stationary strategies for the games we consider (see, for example, \parencite[Theorem 3.1.1, Theorem 4.6.4]{Filar1997}).
+    }
+    Typically, the block row vectors $\vec{f} = (\vec{f}(s))_{s \in \calS}$ and $\vec{g} = (\vec{g}(s))_{s \in \calS}$ represent stationary strategies belonging to Player 1 and Player 2, respectively.
+    If $s \in \calS$ is the game's current state, then the stochastic row vectors $\vec{f}(s) = (f(s, a))_{a \in \calA(s)}$ and $\vec{g}(s) = (g(s, b))_{b \in \calB(s)}$ contain the probability $f(s, a)$ that Player 1 chooses action $a \in \calA(s)$ and the probability $g(s, b)$ that Player 2 chooses action $b \in \calB(s)$.\footnote{
+        We are implicitly imposing a canonical ordering on the state space $\calS$ and, for all $s \in \calS$, the action sets $\calA(s)$ and $\calB(s)$.
+        This allows $\calS$, $\calA(s)$, and $\calB(s)$ to be used as index sets for various vectors and matrices.
+    }
+    Aligning with our previous terminology for normal-form games, we call $\vec{f}$ and $\vec{g}$ \emph{pure stationary strategies} whenever $f(s, a) \in \{0, 1\}$ and $g(s, b) \in \{0, 1\}$ for every $s \in \calS$, $a \in \calA(s)$, and $b \in \calB(s)$.
+    The set of available stationary strategies is denoted by $\vec{F}$ for Player 1 and $\vec{G}$ for Player 2.
+    \nomenclature[F, 10]{$\vec{F}$}{The set of stationary strategies belonging to Player 1 in $\Gamma$. \nomrefpage}%
+    \nomenclature[F, 11]{$\vec{G}$}{The set of stationary strategies belonging to Player 2 in $\Gamma$. \nomrefpage}%
+
+    Fix a strategy profile $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$.
+    Seeing that the players' behaviours are entirely determined by these strategies, we extend the immediate utility of Player $k = 1, 2$ to
+    \begin{equation}  \label{eq:expected-immediate-utility}
+        r^k(s, \vec{f}, \vec{g})
+            = \sum_{a \in \calA(s)} \sum_{b \in \calB(s)} f(s, a) r^k(s, a, b) g(s, b)
+    \end{equation}
+    and the transition probabilities to
+    \begin{equation}  \label{eq:expected-transition-probabilities}
+        p(s' | s, a, b)
+            = \sum_{a \in \calA(s)} \sum_{b \in \calB(s)} f(s, a) p(s' | s, a, b) g(s, b)
+    \end{equation}
+    for all $s, s' \in \calS$.
+    Evidently, since these probabilities depend only on the present state, the process $\{S_t\}_{t = 0}^\infty$ becomes a Markov chain whose one-step probability transition matrix is $P(\vec{f}, \vec{g}) = (p(s' | s, \vec{f}, \vec{g}))_{s, s' \in \calS}$.
+    This allows us to encode the streams of immediate utility rewards for Player 1 and Player 2 as stochastic processes $\{R^1_t\}_{t = 0}^\infty$ and $\{R^2_t\}_{t = 0}^\infty$.
+    \nomenclature[F, 12]{$R^k$}{The utility received by Player $k \in \{1, 2\}$ at stage $t = 0, 1, 2, \ldots$ of $\Gamma$. \nomrefpage}%
+    So, after starting at state $s \in \calS$, the expected utility allocation for Player $k = 1, 2$ at state $t = 0, 1, 2, \ldots$ is
+    \begin{equation}  \label{eq:utility-process-expectation}
+    \begin{split} 
+        \EE_{s \vec{f} \vec{g}} \big[R^k_t\big]
+            & = \sum_{s' \in \calS} \EE_{s \vec{f} \vec{g}} \big[ R^k_t \big| S_t = s' \big] \PP_{s \vec{f} \vec{g}} (S_t = s) \\
+            & = \sum_{s' \in \calS} r^k(s', \vec{f}, \vec{g}) P(\vec{f}, \vec{g})^t [s, s']
+    \end{split}
+    \end{equation}
+    where $\PP_{s \vec{f} \vec{g}}$ is the probability measure induced by the dynamics of $(\vec{f}, \vec{g})$ with initial state $S_0 = s$.
+    How can this be used to value an arbitrary strategy profile $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$?
+    Naively, we want to compute the expected total utility received throughout the game; however, the summations
+    \[
+        \sum_{t = 0}^\infty \EE_{s \vec{f} \vec{g}} \big[ R^1_t \big]
+        \quad\text{and}\quad
+        \sum_{t = 0}^\infty \EE_{s \vec{f} \vec{g}} \big[ R^2_t \big]
+    \]
+    might not converge.
+
+    Instead, consider a two-player \emph{discounted stochastic game} $\Gamma_\beta$ wherein future utility rewards are progressively diminished by a \emph{discount factor} $\beta \in [0, 1)$.
+    \nomenclature[F, 13]{$\Gamma_\beta$}{A $\beta$-discounted stochastic game. \nomrefpage}%
+    The \emph{discounted value} of $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$ to Player $k = 1, 2$ is
+    \begin{equation}  \label{eq:discounted-value}
+        v_\beta^k (s, \vec{f}, \vec{g})
+            = \sum_{t = 0}^\infty \beta^t \EE_{s \vec{f} \vec{g}} \big[ R^k_t \big]
+    \end{equation}
+    after starting at the initial state $s \in \calS$.\footnote{A
+        different solution to this problem is to construct a limiting average stochastic game $\Gamma_\ms{\alpha}$ (see \parencite[Section 3.4, Chapter 5]{Filar1997}).
+        Here, the value of a strategy profile is the limit of its average rewards over finite time horizons.
+        This alternative approach is ignored because, unlike in discounted stochastic games, the existence of stationary equilibria is not guaranteed in limiting average stochastic games (see \parencite[Example 3.4.1]{Filar1997}).
+    }
+    \nomenclature[F, 14]{$v_\sbeta^k$}{The value function belonging to Player $k \in \{1, 2\}$ in $\Gamma_\beta$. \nomrefpage}%
+    The convergence of the summation in \eqref{eq:discounted-value} is guaranteed because the sequence of expected utilities is bounded between the minimum and maximum utility allotments.
+    We call the vector $\vec{v}_\sbeta^k(\vec{f}, \vec{g}) = (v_\sbeta^k(s, \vec{f}, \vec{g}))_{s \in \calS}$ the \emph{discounted value vector} of $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$ to Player $k = 1, 2$.
+    \nomenclature[F, 15]{$\vec{v}_\sbeta^k$}{The value vector function belonging to Player $k \in \{1, 2\}$ in $\Gamma_\beta$. \nomrefpage}%
+    Applying this valuation of player strategies, we say that a strategy profile $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$ is a \emph{Nash equilibrium} of $\Gamma_\beta$ whenever the componentwise inequalities
+    \begin{equation}  \label{eq:stochastic-nash-equilibrium}
+        \vec{v}_\beta^1(\vec{f}, \vec{g}^*)
+            \le \vec{v}_\beta^1(\vec{f}^*, \vec{g}^*)
+        \quad\text{and}\quad
+        \vec{v}_\beta^2(\vec{f}^*, \vec{g})
+            \le \vec{v}_\beta^2(\vec{f}^*, \vec{g}^*)
+    \end{equation}
+    hold for every $\vec{f} \in \vec{F}$ and $\vec{g} \in \vec{G}$.
+    Notice that, by requiring that the inequalities are satisfied regardless of the initial state, this condition eliminates incredible threats and mirrors the subgame perfect equilibrium in extensive-form games.
+
+    The existence of stationary equilibria in two-player zero-sum stochastic games---where $r^1(s, a, b) + r^2(s, a, b) = 0$ for all $s \in \calS$, $a \in \calA(s)$, and $b \in \calB(s)$---was established by Shapley \parencite{Shapley1953}.
+    Again, if $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$ is a Nash equilibrium of a zero-sum stochastic game, then $\vec{f}^*$ and $\vec{g}^*$ are called \emph{optimal strategies}.
+    Generally, we will not require that our stochastic games are zero-sum and, as a consequence, we must leverage Fink's \parencite{Fink1964} result showing that a stationary equilibrium always exists in a finite-player general-sum stochastic game.
+
+
+
+\section{Incremental Learning Games} \label{sec:incremental-learning-games}
+    We are now prepared to model the process of incremental learning in incompetent games.
+    Consider a parameterised incompetent game $G_\ms{Q_1(\funcdot), Q_2(\funcdot)}$ with learning trajectories $Q_1 : [0, 1] \to \RR^{m_1 \times m_1}$ and $Q_2 : [0, 1] \to \RR^{m_2 \times m_2}$.
+    An incremental learning game allows Player 1 and Player 2 to increment their learning parameters through the ordered sets 
+    \[
+        \Lambda 
+            = \{\lambda_1, \lambda_2, \ldots, \lambda_{n_1}\} \subset [0, 1]
+        \quad\text{and}\quad
+        \Mu 
+            = \{\mu_1, \mu_2, \ldots, \mu_{n_2}\} \subset [0, 1]
+    \]
+    for some $n_1, n_2 \in \ZZ^+$.
+    \nomenclature[G, 01]{$\Gamma_\beta$}{A $\beta$-discounted incremental learning game. \nomrefpage}%
+    \nomenclature[G, 02]{$\Lambda$}{The set of attainable parameters belonging to Player 1 in $\Gamma_\beta$. \nomrefpage}%
+    \nomenclature[G, 03]{$\Mu$}{The set of attainable parameters belonging to Player 2 in $\Gamma_\beta$. \nomrefpage}%
+    \nomenclature[G, 04]{$n_k$}{The number of attainable parameters belonging to Player $k \in \{1, 2\}$. \nomrefpage}%
+    Recall that the learning parameters $\lambda_i$ and $\mu_j$ correspond to the incompetence matrices $Q_1(\lambda_i)$ and $Q_2(\mu_j)$, as defined in \autoref{sec:incompetent-games}.
+    The elements of $\Lambda$ and $\Mu$ are called \emph{attainable learning parameters}.
+
+    Fix $i \in \{1, 2, \ldots, n_1\}$ and $j \in \{1, 2, \ldots, n_2\}$ such that $\lambda_i$ is Player 1's current learning parameter and $\mu_j$ is Player 2's current learning parameter.
+    We divide gameplay into two distinct phases: a \emph{playing phase} and a \emph{learning phase}.
+    First, the playing phase involves playing the incompetent game $G_{\lambda_i, \mu_j}$ and receiving the utility allotments associated with its realised outcome.
+    Second, unless a player's attainable learning parameters have been exhausted, the learning phase gives Player 1 and Player 2 the option to advance their learning parameters to $\lambda_{i + 1}$ and $\mu_{j + 1}$, respectively.
+    The decision to increment a learning parameter might incur state-dependent \emph{learning costs} $c^1(\lambda_i, \mu_j)$ and $c^2(\lambda_i, \mu_j)$.
+    \nomenclature[G, 05]{$c^k$}{The cost function belonging to Player $k \in \{1, 2\}$ in $\Gamma_\beta$. \nomrefpage}%
+    This process is repeated using the updated learning parameters and utility is gradually accumulated over time.
+    The structure of an incremental learning game is illustrated in \autoref{fig:incremental-learning-game}, which represents learning parameter pairs as nodes and possible transitions as arcs.
+    Note that a transition can only occur as a result of actions in the learning phase.
+
+    \begin{figure}[t]
+        \centering
+        \input{tex/chapter4/figures/incremental_learning_game}
+        \caption[Structure of an Incremental Learning Game]{The transition structure of a general incremental learning game.}
+        \label{fig:incremental-learning-game}
+    \end{figure}
+
+    We are going to address incremental learning games with an infinite time horizon.
+    The motivation, as it appears in \parencite[Section 2.2]{Filar1997}, behind our exclusion of finite time horizons is twofold:
+    \begin{itemize}
+        \item a stochastic game with a ``short'' time horizon can already be solved easily using dynammic programming, and
+        \item a stochastic game with a ``long'' time horizon is computationally expensive to solve using the same method.
+    \end{itemize}
+    An alternative approach to finding equilibria in a ``long'' time horizon stochastic game is to approximate it over an infinite time horizon and leverage the various mathematical programming techniques capable of solving these models.
+    This brings the added benefit of producing stationary strategies, which are often easier to implement than the time-dependent strategies produced when solving stochastic games with a finite time horizon \parencite{Filar1997}.
+
+    Next, to develop a formal description of incremental learning, we define an \emph{incremental learning game} as a stochastic game $\Gamma$ constructed by the following process.
+    The state space
+    \[
+        \calS 
+            = \big\{(i, j) : i = 1, 2, \ldots, n_1 \text{ and } j = 1, 2, \ldots, n_2\big\}
+    \]
+    is chosen to index the attainable learning parameters; the state $(i, j) \in \calS$ corresponds to the parameters $(\lambda_i, \mu_j) \in \Lambda \times \Mu$.
+    Fix a state $s = (i, j) \in \calS$.
+    It is convenient to simplify our notation by writing $i$ instead of $\lambda_i$ and $j$ instead $\mu_j$ whenever learning parameters are referenced.
+    A player's action should consist of an action in the playing phase and an action in the learning phase.
+    So, Player 1's action set is
+    \[
+        \calA(s)
+            = 
+            \begin{cases}
+                \{1, 2, \ldots, m_1\} \times \{0, 1\}, & i \neq n_1, \\
+                \{1, 2, \ldots, m_1\} \times \{0\}, & i = n_1, \\
+            \end{cases}
+    \]
+    and Player 2's action set is
+    \[
+        \calB(s)
+            = 
+            \begin{cases}
+                \{1, 2, \ldots, m_2\} \times \{0, 1\}, & j \neq n_2, \\
+                \{1, 2, \ldots, m_2\} \times \{0\}, & j = n_2. \\
+            \end{cases}
+    \]
+    If $a = (a_P, a_L) \in \calA(s)$ and $b = (b_P, b_L) \in \calB(s)$ are selected, then $a_P, b_P$ are interpreted as playing phase actions and $a_L, b_L$ are interpreted as learning phase actions.
+    These actions award the utilities
+    \[
+        r^1(s, a, b)
+            = u_{i, j}(a_P, b_P) - a_L c^1(i, j)
+        \quad\text{and}\quad
+        r^2(s, a, b)
+            = -u_{i, j}(a_P, b_P) - b_L c^2(i, j)
+    \]
+    to Player 1 and Player 2, respectively.\footnote{Clearly,
+        an incremental learning game is zero-sum if and only if there are no learning costs, or $c^1(i, j) = 0$ and $c^2(i, j) = 0$ for all $i = 1, 2, \ldots, n_1$ and $j = 1, 2, \ldots, n_2$.
+    }
+    Furthermore, they cause a guaranteed transition to the next state $(i + a_L, j + b_L)$ such that the transition probabilities are given by
+    \[
+        p(s' | s, a, b)
+            =
+            \begin{cases}
+                1, & i' = i + a_L \text{ and } j' = j + b_L, \\
+                0, & i' \neq i + a_L \text{ or } j' \neq j + b_L, \\
+            \end{cases}
+    \]
+    for every $s' = (i', j') \in \calS$.
+    The incremental learning game $\Gamma$ is defined as the stochastic game $(\calS, \calA, \calB, r^1, r^2, p)$.
+    Again, to value a strategy profile, we use the \emph{discounted incremental learning game} $\Gamma_\beta$ with a predetermined discount factor $\beta \in [0, 1)$.
+
+    Notice that, for all $s \in \calS$ and $(a, b) \in \calA(s) \times \calB(s)$, the utilities $r^1(s, a, b)$ and $r^2(s, a, b)$ contain two terms: one that depends only on the playing phase actions and one that depends only on the learning phase actions.
+    Thus, since these different types of actions do not interact, they are selected using independent probability distributions.
+    Fix a state $s = (i, j) \in \calS$ and a strategy profile $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$.
+    We know that Player 1 chooses an action $a = (a_P, a_L)$ by independently drawing $a_P$ from the distribution $\vec{f}_P(s)$ over $\{1, 2, \ldots, m_1\}$ and $a_L$ from the distribution $\vec{f}_L(s)$ over $\{0, 1\}$.
+    Similarly, Player 2 chooses an action $b = (b_P, b_L)$ by independently drawing $b_P$ from the distribution $\vec{g}_P(s)$ over $\{1, 2, \ldots, m_2\}$ and $b_L$ from the distribution $\vec{g}_L(s)$ over $\{0, 1\}$.
+    This decomposition of player strategies is exploited in \autoref{prop:playing-phase-optimality} to show that, given an equilibrium $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$ of $\Gamma_{\beta}$, the strategy profile $(\vec{f}^*_P(s), \vec{g}^*_P(s))$ is an equilibrium of $G_{i, j}$.
+
+    \begin{proposition} \label{prop:playing-phase-optimality}
+        Let the strategy profile $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$ be an equilibrium of the discounted incremental learning game $\Gamma_\beta$.
+        Then, at any state $s = (i, j) \in \calS$, the strategy profile $(\vec{f}^*_P(s), \vec{g}^*_P(s))$ is an equilibrium of the incompetent game $G_{i, j}$.
+        
+    \end{proposition}
+
+    \begin{proof}
+        Consider a strategy profile $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$ that is identical to $(\vec{f}^*, \vec{g}^*)$ except at $\vec{f}_P(s) \neq \vec{f}^*_P(s)$ and $\vec{g}_P(s) \neq \vec{g}^*_P(s)$.
+        Observe that, after applying \eqref{eq:expected-immediate-utility} and \eqref{eq:discounted-value}, we obtain
+        \begin{equation}  \label{temp:playing-phase-optimality-1}
+        \begin{split}
+            v^k_\beta(& s, \vec{f}, \vec{g}) - v^k_\beta(s, \vec{f}^*, \vec{g}^*)
+                = \sum_{t = 0}^\infty \beta^t \big( \EE_{s \vec{f} \vec{g}} \big[R^k_t\big] - \EE_{s \vec{f}^* \vec{g}^*} \big[R^k_t\big]\big) \\
+                & = \sum_{t = 0}^\infty \sum_{s' \in \calS} \beta^t \big( \EE_{s \vec{f} \vec{g}} \big[ R^k_t \big| S_t = s' \big] \PP_{s \vec{f} \vec{g}} (S_t = s') - \EE_{s \vec{f}^* \vec{g}^*} \big[ R^k_t \big| S_t = s' \big] \PP_{s \vec{f}^* \vec{g}^*} (S_t = s')\big).
+        \end{split}
+        \end{equation}
+        Now, since $\vec{f}_L(s') = \vec{f}^*_L(s')$ and $\vec{g}_L(s') = \vec{g}^*_L(s')$ for all $s' \in \calS$, the strategy profiles $(\vec{f}, \vec{g})$ and $(\vec{f}^*, \vec{g}^*)$ induce the same transition dynamics such that $\PP_{s \vec{f} \vec{g}} = \PP_{s \vec{f}^* \vec{g}^*}$.
+        Moreover, the similarities between $(\vec{f}, \vec{g})$ and $(\vec{f}^*, \vec{g}^*)$ imply that their expected playing phase utility is equal on $\calS \setminus \{s\}$ and their expected learning phase utility is equal on $\calS$.
+        This allows us to reduce \eqref{temp:playing-phase-optimality-1} to
+        \begin{equation}  \label{temp:playing-phase-optimality-2}
+        \begin{split}
+            v^k_\beta(& s, \vec{f}, \vec{g}) - v^k_\beta(s, \vec{f}^*, \vec{g}^*) \\
+                & = \sum_{t = 0}^\infty \sum_{s' \in \calS} \beta^t \PP_{s \vec{f}^* \vec{g}^*} (S_t = s') \big( \EE_{s \vec{f} \vec{g}} \big[ R^k_t \big| S_t = s' \big] - \EE_{s \vec{f}^* \vec{g}^*} \big[ R^k_t \big| S_t = s' \big]\big) \\
+                & = (-1)^{k - 1} \big( v_{i, j}(\vec{f}_P(s), \vec{g}_P(s)) - v_{i, j}(\vec{f}^*_P(s), \vec{g}^*_P(s)) \big) \sum_{t = 0}^\infty \beta^t \PP_{s \vec{f}^* \vec{g}^*} (S_t = s)
+        \end{split}
+        \end{equation}
+        because the only remaining contribution is from the difference in expected playing phase utilities at the state $s$.
+        Note that $\PP_{s \vec{f}^* \vec{g}^*}(S_0 = s) = 1$ and, as a consequence, the summation in \eqref{temp:playing-phase-optimality-2} is strictly positive.
+        So,
+        \begin{equation} \label{temp:playing-phase-optimality-3}
+            v_\beta^1(s, \vec{f}, \vec{g})
+                \le v_\beta^1(s, \vec{f}^*, \vec{g}^*)
+            \quad\text{implies}\quad
+            v_{i, j}(\vec{f}_P(s), \vec{g}_P(s))
+                \le v_{i, j}(\vec{f}^*_P(s), \vec{g}^*_P(s))
+        \end{equation}
+        and
+        \begin{equation} \label{temp:playing-phase-optimality-4}
+            v_\beta^2(s, \vec{f}, \vec{g})
+                \le v_\beta^2(s, \vec{f}^*, \vec{g}^*)
+            \quad\text{implies}\quad
+            v_{i, j}(\vec{f}_P(s), \vec{g}_P(s))
+                \ge v_{i, j}(\vec{f}^*_P(s), \vec{g}^*_P(s)).
+        \end{equation}
+        Set $\vec{g} = \vec{g}^*$ in \eqref{temp:playing-phase-optimality-3} and $\vec{f} = \vec{f}^*$ in \eqref{temp:playing-phase-optimality-4}.
+        Then, by the stochastic game equilibrium inequalities for $(\vec{f}^*, \vec{g}^*)$ in $\Gamma_\beta$, we conclude that $(\vec{f}^*_P(s), \vec{g}^*_P(s))$ satisfies the matrix game equilibrium inequalities in $G_{i, j}$.
+    \end{proof}
+
+    The message of \autoref{prop:playing-phase-optimality} is that, whenever we are interested in finding equilibria of a discounted incremental learning game, we are able to assume that both players always select optimal strategies of $G_{i, j}$ in the playing phase at state $s = (i, j) \in \calS$.
+    Next, this realisation is used to simplify the description of incremental learning and ``remove'' the playing phase.
+
+    Fix an arbitrary state $s = (i, j) \in \calS$.
+    Noting that each player's behaviour during a playing phase is entirely determined by \autoref{prop:playing-phase-optimality}, they only need to select a learning phase action from the sets
+    \[
+        \calA(s)
+            =
+            \begin{cases}
+                \{0, 1\}, & i \neq n_1, \\
+                \{0\}, & i = n_1, \\
+            \end{cases}
+        \quad\text{and}\quad
+        \calB(s)
+            =
+            \begin{cases}
+                \{0, 1\}, & j \neq n_2, \\
+                \{0\}, & j = n_2, \\
+            \end{cases}.
+    \]
+    If Player 1 selects  $a \in \calA(s)$ and Player 2 selects $b \in \calB(s)$, then they receive the immediate utilities
+    \[
+        r^1(s, a, b)
+            = \val\big(G_{i, j}\big) - a c^1(i, j)
+        \quad\text{and}\quad
+        r^2(s, a, b)
+            = -\val\big(G_{i, j}\big) - b c^2(i, j),
+    \]
+    respectively.
+    Additionally, the game transitions to the state $(i + a, j + b)$ and the transition probabilities are given by
+    \[
+        p(s' | s, a, b)
+            =
+            \begin{cases}
+                1, & i' = i + a \text{ and } j' = j + b, \\
+                0, & i' \neq i + a \text{ or } j' \neq j + b, \\
+            \end{cases}
+    \]
+    for all $s' = (i', j') \in \calS$.
+    Henceforth, we will use this simplified formulation to describe an incremental learning game.
+    Although \autoref{prop:playing-phase-optimality} shows that both formulations are equivalent, the simplified version does not explicitly model the playing phase behaviour.
+    The playing phase equilibrium strategies at the state $s = (i, j) \in \calS$ can be found separately by computing the optimal strategies of $G_{i, j}$.
+
+
+
+\section{Backward Induction} \label{sec:backward-induction}
+    After developing a mathematical model that captures the features of incremental learning in incompetent games, our immediate task is to identify a procedure to compute its equilibrium solutions.
+    Typically, a single equilibrium of a general-sum stochastic game can be found using nonlinear programming (see, for example, \parencite[Section 3.8]{Filar1997}); however, this approach complicates the process of finding multiple equilibria.
+    Instead, we will propose a modified backward induction algorithm that, under certain conditions, is capable of exhaustively identifying every equilibrium in a discounted incremental learning game. 
+
+    The process of \emph{backward induction}, which develops a rational strategy by reasoning backward through time, is commonly used to solve game-theoretic problems.
+    Consider a finite extensive-form game with perfect information; that is, a game wherein every information set is a singleton.
+    Here, backward induction produces a subgame perfect equilibrium by proceeding upward through the game tree and assigning optimal actions contingent on future play \parencite{Osborne1994}.
+    \autoref{fig:backward-induction} shows a backward induction solution to a variant of ``Battle of the Sexes'' with perfect information.
+    A selected action is indicated by a solid arc between nodes and an unselected action is indicated by a dashed arc between nodes.
+    Notice that, at every decision point, the controlling player is always maximising their utility conditional on the already determined future behaviour.
+
+    \begin{figure}[t]
+        \centering
+        \input{tex/chapter4/figures/backward_induction}
+        \caption[Backward Induction in ``Battle of the Sexes'']{A backward induction solution to perfect-information ``Battle of the Sexes''.}
+        \label{fig:backward-induction}
+    \end{figure}
+
+    A discounted incremental learning game, unlike the previous example of ``Battle of the Sexes'', cannot be solved using a standard backward induction procedure because it has infinitely many stages and no ``last'' stage to serve as a starting point.
+    So, as an alternative to iterating through the game's stages, we will build a stationary equilibrium $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$ by iterating through the game's states.
+    Precisely, a formal description of this procedure requires an ordering $s_1, s_2, \ldots, s_n$ (with $n = n_1 n_2$) of the state space $\calS$ and, for all $\ell = 1, 2, \ldots, n$, a method to find $(\vec{f}^*(s_\ell), \vec{g}^*(s_\ell))$ given an equilibrium of $\Gamma_\beta$ restricted to $\{s_{\ell + 1}, s_{\ell + 2}, \ldots, s_n\}$.
+
+    First, to construct a suitable notion of ``past'' and ``future'' states, we want a sequence $s_1, s_2, \ldots, s_n$ of states such that
+    \begin{equation}  \label{eq:state-ordering-condition}
+        \ell' < \ell
+        \quad\text{implies}\quad
+        p(s_{\ell'} | s_\ell, a, b) = 0
+    \end{equation}
+    for every $\ell, \ell' = 1, 2, \ldots, n$ and $(a, b) \in \calA(s_\ell) \times \calB(s_\ell)$.
+    The purpose of the condition in \eqref{eq:state-ordering-condition} is to ensure that a state $s_\ell$ can never transition to a preceding state $s_{\ell'}$.
+    Equivalently, we want a topological ordering of the directed graph $D = (V, E)$ where $V = \calS$ and
+    \[
+        E 
+        =
+        \big\{
+        (s, s') \in \calS \times \calS 
+        : s \neq s' \text{ and } p(s' | s, a, b) > 0 \text{ for some } (a, b) \in \calA(s) \times \calB(s)
+        \big\},
+    \]
+    A \emph{topological ordering} in $D$ is a sequence of states such that $s$ appears before $s'$ for all $(s, s') \in E$.
+    This sequence exists if and only if $D$ is an acyclic directed graph \parencite{Erciyes2018}.
+    Therefore, having constructed $D$ to explicitly exclude self-loops, the structure of an incremental learning game (see \autoref{fig:incremental-learning-game}) suggests that a topological ordering is possible.
+    Indeed, we can always use the lexicographic ordering $s_1, s_2, \ldots, s_n$ where, for any states $s_\ell = (i, j) \in \calS$ and $s_{\ell'} = (i', j') \in \calS$ with $\ell, \ell' = 1, 2, \ldots, n$, we have
+    \begin{equation} \label{eq:lexicographic ordering}
+        \ell < \ell'
+        \quad\text{if and only if}\quad
+        (i < i') \text{ or } (i = i' \text{ and } j < j').
+    \end{equation}
+    It is straightforward to check that, when arranged in lexicographic order, the successors $(i + 1, j)$, $(i, j + 1)$, and $(i + 1, j + 1)$ must appear after $(i, j)$.\footnote{Although
+        a lexicographic ordering of the state space satisfies the required conditions, it is often possible to backward induct through the states in a different order.
+        A general algorithm to compute topological orderings for an arbitrary acyclic directed graph is given by \parencite[Algorithm 6.11]{Erciyes2018}.
+    }
+    So, assuming that a suitable ordering has been selected, we will simplify our notation by relabelling the state $s_\ell$ as $\ell$ for every $\ell = 1, 2, \ldots, n$.
+
+    \begin{proposition}  \label{prop:general-ordered-state-value}
+        Let $(\vec{f}, \vec{g}) \in \vec{F} \times \vec{G}$ be a strategy profile in the discounted incremental learning game $\Gamma_\beta$.
+        Then, for any $\ell = 1, 2, \ldots, n$ and $k = 1, 2$, we have
+        \begin{equation}  \label{eq:general-ordered-state-value}
+            v_\beta^k(\ell, \vec{f}, \vec{g})
+                = \frac{r^k(\ell, \vec{f}, \vec{g}) + \beta \sum_{\ell' = \ell + 1}^n v_\beta^k(\ell', \vec{f}, \vec{g}) p(\ell' | \ell, \vec{f}, \vec{g})}{1 - \beta p(\ell | \ell, \vec{f}, \vec{g})}.
+        \end{equation}
+    \end{proposition}
+
+    \begin{proof} 
+        Observe that, by conditioning on the outcome of the random variable $S_1$, the discounted value of $(\vec{f}, \vec{g})$ at $\ell$ can be written as
+        \begin{equation} \label{temp:general-ordered-state-value-1}
+        \begin{split}
+            v_\beta^k(\ell, \vec{f}, \vec{g})
+                &= \sum_{t = 0}^\infty \beta^t \EE_{\ell \vec{f} \vec{g}} \big[ R^k_t \big] \\
+                &= \EE_{\ell \vec{f} \vec{g}} \big[ R^k_0 \big] + \sum_{t = 0}^\infty \sum_{\ell' = 1}^n \beta^t \EE_{\ell \vec{f} \vec{g}} \big[ R^k_t \big| S_1 = \ell' \big] \PP_{\ell \vec{f} \vec{g}}\big(S_1 = \ell'\big) \\
+                & = \EE_{\ell \vec{f} \vec{g}} \big[ R^k_0 \big] + \sum_{\ell' = 1}^n  \PP_{\ell \vec{f} \vec{g}} \big(S_1 = \ell'\big) \sum_{t = 1}^\infty \beta^t \EE_{\ell \vec{f} \vec{g}} \big[ R^k_t \big| S_1 = \ell' \big] \\
+                & = \EE_{\ell \vec{f} \vec{g}} \big[ R^k_0 \big] + \beta \sum_{\ell' = 1}^n  \PP_{\ell \vec{f} \vec{g}} \big(S_1 = \ell'\big) \sum_{t = 1}^\infty \beta^t \EE_{\ell' \vec{f} \vec{g}} \big[ R^k_t \big] \\
+                &=  r^k(\ell, \vec{f}, \vec{g}) + \beta \sum_{\ell' = 1}^n v^k_\beta(\ell', \vec{f}, \vec{g}) p(\ell' | \ell, \vec{f}, \vec{g}).
+        \end{split}
+        \end{equation}
+        Of course, an immediate consequence of the ordering condition in \eqref{eq:state-ordering-condition} is that, for all $\ell' = 1, 2, \ldots, \ell - 1$, we obtain
+        \begin{equation} \label{temp:general-ordered-state-value-2}
+            p(\ell' | \ell, \vec{f}, \vec{g})
+                = \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} f(\ell, a) p(\ell' | \ell, a, b) g(\ell, b)
+                = 0
+        \end{equation}
+        and
+        \begin{equation} \label{temp:general-ordered-state-value-3}
+            v_\beta^k(\ell, \vec{f}, \vec{g})
+                = r^k(\ell, \vec{f}, \vec{g}) + \beta \sum_{\ell' = \ell}^n v_\beta^k(\ell', \vec{f}, \vec{g}) p(\ell' | \ell, \vec{f}, \vec{g}).
+        \end{equation}
+        Lastly, we can isolate the $v^k_\sbeta(\ell, \vec{f}, \vec{g})$ terms on the left-hand side of \eqref{temp:general-ordered-state-value-3} to obtain \eqref{eq:general-ordered-state-value}, as required.
+    \end{proof}
+
+    Fix an index $\ell = 1, 2, \ldots, n$.
+    We are allowed to restrict the discounted incremental learning game $\Gamma_\beta$ to the smaller state space $\calS_\ell = \{\ell, \ell + 1, \ldots, n\}$.
+    Why?
+    The ordering condition in \eqref{eq:state-ordering-condition} guarantees that the excluded states cannot be accessed from within this restricted game.
+    Thus, as in \autoref{prop:general-ordered-state-value}, a value can be assigned to incomplete strategy profiles that only specify a player's behaviour on $\calS_\ell$.
+    Precisely, \emph{incomplete strategies} belonging to Player 1 and Player 2 are block row vectors
+    \[
+        \vec{f}_\ell
+            = \big(\vec{f}_\ell(\ell')\big)_{\ell' = \ell}^n
+        \quad\text{and}\quad
+        \vec{g}_\ell
+            = \big(\vec{g}_\ell(\ell')\big)_{\ell' = \ell}^n
+    \]
+    where, for all $\ell' = \ell, \ell + 1, \ldots, n$, the blocks
+    \[
+        \vec{f}_\ell(\ell')
+            = \big(f_\ell(\ell', a)\big)_{a \in \calA(\ell')}
+        \quad\text{and}\quad
+        \vec{g}_\ell(\ell')
+            = \big(g_\ell(\ell', b)\big)_{b \in \calB(\ell')}
+    \]
+    are stochastic row vectors.
+    The set of Player 1's incomplete strategies is denoted by $\vec{F}_\ell$ and the set of Player 2's incomplete strategies is denoted by $\vec{G}_\ell$.
+    Clearly, using our previous observation, the discounted value $v_\sbeta^k(\ell', \vec{f}_\ell, \vec{g}_\ell)$ of $(\vec{f}_\ell, \vec{g}_\ell) \in \vec{F}_\ell \times \vec{G}_\ell$ to Player $k = 1, 2$ is well-defined for every $\ell' = \ell, \ell + 1, \ldots, n$.
+    An \emph{incomplete equilibrium} $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell \times \vec{G}_\ell$ satisfies
+    \begin{equation}  \label{eq:incomplete-nash-equilibrium}
+        v_\beta^1\big(\ell', \vec{f}_\ell, \vec{g}^*_\ell\big)
+            \le v_\beta^1\big(\ell', \vec{f}^*_\ell, \vec{g}^*_\ell\big)
+        \quad\text{and}\quad
+        v_\beta^2\big(\ell', \vec{f}^*_\ell, \vec{g}_\ell\big)
+            \le v_\beta^2\big(\ell', \vec{f}^*_\ell, \vec{g}^*_\ell\big)
+    \end{equation}
+    for all states $\ell' = \ell, \ell + 1, \ldots, n$, Player 1's alternatives $\vec{f}_\ell \in \vec{F}_\ell$, and Player 2's alternatives $\vec{g}_\ell \in \vec{G}_\ell$.
+
+    Now, since a backward induction algorithm builds an equilibrium by progressively adding to an incomplete equilibrium, some additional notation is needed to mathematically describe this process.
+    Fix an index $\ell = 1, 2, \ldots, n - 1$.
+    A strategy $\vec{f}_\ell \in \vec{F}_\ell$ is said to \emph{extend} $\vec{f}_{\ell + 1} \in \vec{F}_{\ell + 1}$ whenever $\vec{f}_\ell(\ell') = \vec{f}_{\ell + 1}(\ell')$ for all $\ell' = \ell + 1, \ell + 2, \ldots, n$.
+    Similarly, a strategy $\vec{g}_\ell \in \vec{G}_\ell$ is said to \emph{extend} $\vec{g}_{\ell + 1} \in \vec{G}_{\ell + 1}$ whenever $\vec{g}_{\ell}(\ell') = \vec{g}_{\ell + 1}(\ell')$ for all $\ell' = \ell + 1, \ell + 2, \ldots, n$.
+    The sets of strategies that extend $\vec{f}_{\ell + 1} \in \vec{F}_{\ell + 1}$ and $\vec{g}_{\ell + 1} \in \vec{G}_{\ell + 1}$ are denoted by $\vec{F}_\ell(\vec{f}_{\ell + 1})$ and $\vec{G}_\ell(\vec{g}_{\ell + 1})$, respectively.
+
+    The modified backward induction procedure is outlined in \autoref{alg:incremental-learning-backward-induction} using this terminology.
+    Although the problem of finding a suitable extension in Step 2 is not resolved until \autoref{sec:finding-extensions}, we assume that a method exists that is capable of computing these extensions.
+    Below, \autoref{thm:backward-induction-verification} verifies that, depending on the choice of extensions, any stationary equilibrium of $\Gamma_\beta$ can be returned by \autoref{alg:incremental-learning-backward-induction}.
+
+    \begin{algorithm} \label{alg:incremental-learning-backward-induction}
+    \begin{enumerate}[
+        leftmargin=*,
+        align=left,
+        label=\textbf{Step \arabic*.}
+    ]
+        \item[]
+    
+        \item[\textbf{Input.}] An incremental learning game $\Gamma_\beta$ with a state space $\calS = \{s_1, s_2, \ldots, s_n\}$ satisfying the condition in \eqref{eq:state-ordering-condition}.
+        
+        \item[\textbf{Output.}] An equilibrium $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$ of $\Gamma_\beta$.
+        
+        \item (\textit{Initialisation}) Set $(\vec{f}^*_n, \vec{g}^*_n) \in \vec{F}_n \times \vec{G}_n$ such that $f^*_n(n, 0) = 1$ and $g^*_n(n, 0) = 1$.
+
+        \item (\textit{Extension}) Next, for each $\ell = n - 1, n - 2, \ldots, 1$, find a strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell(\vec{f}_{\ell + 1}) \times \vec{G}_\ell(\vec{g}_{\ell + 1})$ satisfying the inequalities
+        \begin{equation}  \label{eq:extension-nash-equilibrium}
+            v_\beta^1\big(\ell, \vec{f}_\ell, \vec{g}^*_\ell\big)
+                \le v_\beta^1\big(\ell, \vec{f}^*_\ell, \vec{g}^*_\ell\big)
+            \quad\text{and}\quad
+            v_\beta^2\big(\ell, \vec{f}^*_\ell, \vec{g}_\ell\big)
+                \le v_\beta^2\big(\ell, \vec{f}^*_\ell, \vec{g}^*_\ell\big)
+        \end{equation}
+        for all $\vec{f}_\ell \in \vec{F}_\ell(\vec{f}_{\ell + 1})$ and $\vec{g}_\ell \in \vec{G}_\ell(\vec{g}_{\ell + 1})$.
+
+        \item (\textit{Result}) Return  $(\vec{f}^*_1, \vec{g}^*_1)$ as an equilibrium of $\Gamma_\beta$.
+    \end{enumerate}
+    \end{algorithm}
+
+    \begin{theorem}  \label{thm:backward-induction-verification}
+        Assume that we are able to find every solution to Step 2 in \autoref{alg:incremental-learning-backward-induction}.
+        Then, a strategy profile $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$ is an equilibrium of $\Gamma_\beta$ if and only if it can be returned in Step 3.
+    \end{theorem}
+
+    \begin{proof}
+        We want to prove that, for any $\ell = 1, 2, \ldots, n$, the strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell \times \vec{G}_\ell$ is an equilibrium of $\Gamma_\beta$ restricted to $\calS_\ell$ if and only if it can be produced during the execution of \autoref{alg:incremental-learning-backward-induction}.
+        First, in the base case ($\ell = n$), the only available actions are $\calA(n) = \{0\}$ and $\calB(n) = \{0\}$.
+        Therefore, because the unique incomplete equilibrium $(\vec{f}^*_n, \vec{g}^*_n) \in \vec{F}_n \times \vec{G}_n$ has $f^*_n(n, 0) = 1$ and $g^*_n(n, 0) = 1$, the previous assertion holds trivially.
+
+        Second, taking an arbitrary index $\ell = n - 1, n - 2, \ldots, 1$, we will assume the validity of the inductive hypothesis for $\ell + 1$; that is, $(\vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}) \in \vec{F}_{\ell + 1} \times \vec{G}_{\ell + 1}$ is an incomplete equilibrium if and only if it is produced during the execution of \autoref{alg:incremental-learning-backward-induction}.
+        It remains to be shown that, under this assumption, the assertion also holds for the preceding state $\ell$.
+
+        ($\Longrightarrow$)
+        Suppose $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell \times \vec{G}_\ell$ is an incomplete equilibrium of the discounted incremental learning game.
+        Define $(\vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}) \in \vec{F}_{\ell + 1} \times \vec{G}_{\ell + 1}$ such that
+        \[
+            \vec{f}^*_{\ell + 1}(\ell')
+                = \vec{f}^*_\ell(\ell')
+            \quad\text{and}\quad
+            \vec{g}^*_{\ell + 1}(\ell')
+                = \vec{g}^*_\ell(\ell')
+        \]
+        for all $\ell' = \ell + 1, \ell + 2, \ldots, n$.
+        Note that $\vec{f}^*_\ell \in \vec{F}_\ell(\vec{f}^*_{\ell + 1})$ and $\vec{g}^*_\ell \in \vec{G}_\ell(\vec{g}^*_{\ell + 1})$.
+        We know that $(\vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1})$ satisfies the incomplete equilibrium inequalities in \eqref{eq:incomplete-nash-equilibrium} and, by the inductive hypothesis, it can be produced during the previous iteration of the extension procedure.
+        Additionally, since $(\vec{f}^*_\ell, \vec{g}^*_\ell)$ satisfies the extension conditions in \eqref{eq:extension-nash-equilibrium}, it can be produced as a solution to Step 2, as required.
+
+        ($\Longleftarrow$)
+        Assume that, during the previous extension iteration, an incomplete strategy profile $(\vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}) \in \vec{F}_{\ell + 1} \times \vec{G}_{\ell + 1}$ is created.
+        Obviously, by the inductive hypothesis, this strategy profile is an incomplete equilibrium of the discounted incremental learning game.
+        Find a suitable extension $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell(\vec{f}^*_{\ell + 1}) \times \vec{G}_\ell(\vec{g}^*_{\ell + 1})$.
+        We already know that $(\vec{f}^*_\ell, \vec{g}^*_\ell)$ satisfies the equilibrium inequalities at $\ell + 1, \ell + 2, \ldots, n$, so it only remains to be shown that these conditions hold at the state $\ell$.
+        Observe that, when $\ell' = \ell + 1, \ell + 2, \ldots, n$, we have
+        \begin{equation}  \label{temp:backward-induction-verification-1}
+            v^1_\beta\big(\ell', \vec{f}'_\ell, \vec{g}^*_\ell\big)
+                \le v^1_\beta\big(\ell', \vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}\big)
+                = v^1_\beta\big(\ell', \vec{f}_\ell, \vec{g}^*_\ell\big)
+        \end{equation}
+        for all $\vec{f}_\ell \in \vec{F}_\ell(\vec{f}^*_{\ell + 1})$ and $\vec{f}'_\ell \in \vec{F}_\ell$ with $\vec{f}_\ell(\ell) = \vec{f}'_\ell(\ell)$ and
+        \begin{equation}  \label{temp:backward-induction-verification-2}
+            v^2_\beta\big(\ell', \vec{f}^*_\ell, \vec{g}'_\ell\big)
+                \le v^2_\beta\big(\ell', \vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}\big)
+                = v^2_\beta\big(\ell', \vec{f}^*_\ell, \vec{g}_\ell\big)
+        \end{equation}
+        for all $\vec{g}_\ell \in \vec{G}_\ell(\vec{g}^*_{\ell + 1})$ and $\vec{g}'_\ell \in \vec{G}_\ell$ with $\vec{g}_\ell(\ell) = \vec{g}'_\ell(\ell)$.
+        Then, as an immediate consequence of \eqref{temp:backward-induction-verification-1} and $\vec{f}_\ell(\ell) = \vec{f}'_\ell(\ell)$, it follows that
+        \begin{equation}  \label{temp:backward-induction-verification-3}
+        \begin{split}
+            v^1_\beta\big(\ell, \vec{f}'_\ell, \vec{g}^*_\ell\big)
+                & = \frac{r^1\big(\ell, \vec{f}'_\ell, \vec{g}^*_\ell\big) + \beta \sum_{\ell' = \ell + 1}^n v^1_\beta\big(\ell', \vec{f}'_\ell, \vec{g}^*_\ell\big) p\big(\ell' \big| \ell, \vec{f}'_\ell, \vec{g}^*_\ell\big)}{1 - \beta p\big(\ell \big| \ell, \vec{f}'_\ell, \vec{g}^*_\ell\big)} \\
+                & \le \frac{r^1\big(\ell, \vec{f}_\ell, \vec{g}^*_\ell\big) + \beta \sum_{\ell' = \ell + 1}^n v^1_\beta\big(\ell', \vec{f}_\ell, \vec{g}^*_\ell\big) p\big(\ell' \big| \ell, \vec{f}_\ell, \vec{g}^*_\ell\big)}{1 - \beta p\big(\ell \big| \ell, \vec{f}_\ell, \vec{g}^*_\ell\big)}
+                = v^1_\beta\big(\ell, \vec{f}_\ell, \vec{g}^*_\ell\big).
+        \end{split}
+        \end{equation}
+        Analogously, as an immediate consequence of \eqref{temp:backward-induction-verification-2} and $\vec{g}_\ell(\ell) = \vec{g}'_\ell(\ell)$, we obtain
+        \begin{equation}  \label{temp:backward-induction-verification-4}
+        \begin{split}
+            v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}'_\ell\big)
+                & = \frac{r^2\big(\ell, \vec{f}^*_\ell, \vec{g}'_\ell\big) + \beta \sum_{\ell' = \ell + 1}^n v^2_\beta\big(\ell', \vec{f}^*_\ell, \vec{g}'_\ell\big) p\big(\ell' \big| \ell, \vec{f}^*_\ell, \vec{g}'_\ell\big)}{1 - \beta p\big(\ell \big| \ell, \vec{f}^*_\ell, \vec{g}'_\ell\big)} \\
+                & \le \frac{r^2\big(\ell, \vec{f}^*_\ell, \vec{g}_\ell\big) + \beta \sum_{\ell' = \ell + 1}^n v^2_\beta\big(\ell', \vec{f}^*_\ell, \vec{g}_\ell\big) p\big(\ell' \big| \ell, \vec{f}^*_\ell, \vec{g}_\ell\big)}{1 - \beta p\big(\ell \big| \ell, \vec{f}^*_\ell, \vec{g}_\ell\big)}
+                = v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}_\ell\big).
+        \end{split}
+        \end{equation}
+        This means that, for any $\vec{f}'_\ell \in \vec{F}_\ell$ and $\vec{g}'_\ell \in \vec{F}_\ell$, the strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell)$ satisfies the familiar equilibrium inequalities
+        \begin{equation}  \label{temp:backward-induction-verification-5}
+            v^1_\beta\big(\ell, \vec{f}'_\ell, \vec{g}^*_\ell\big)
+                \le v^1_\beta\big(\ell, \vec{f}_\ell, \vec{g}^*_\ell\big)
+                \le v^1_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}^*_\ell\big)
+        \end{equation}
+        and
+        \begin{equation}  \label{temp:backward-induction-verification-6}
+            v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}'_\ell\big)
+                \le v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}_\ell\big)
+                \le v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}^*_\ell\big)
+        \end{equation}
+        where $\vec{f}_\ell \in \vec{F}_\ell(\vec{f}^*_{\ell + 1})$ and $\vec{g}_\ell \in \vec{G}_\ell(\vec{g}^*_{\ell + 1})$ are chosen such that $\vec{f}_\ell(\ell) = \vec{f}'_\ell(\ell)$ and $\vec{g}_\ell(\ell) = \vec{g}'_\ell(\ell)$.
+        Hence, the extended strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell)$ is an incomplete equilibrium of the incremental learning game.
+
+        We conclude by noting that $(\vec{f}^*_1, \vec{g}^*_1) \in \vec{F}_1 \times \vec{G}_1$, or equivalently $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$, is an equilibrium of $\Gamma_\beta$ if and only if it can be returned at the termination of \autoref{alg:incremental-learning-backward-induction}.
+    \end{proof}
+
+
+\section{Finding Extensions} \label{sec:finding-extensions}
+    Lastly, before implementing \autoref{alg:incremental-learning-backward-induction}, we must identify a method for solving the inequalities in \eqref{eq:extension-nash-equilibrium}.
+    Suppose that the modified backward induction algorithm has reached the current state $s_\ell = (i, j)$ with $\ell = 1, 2, \ldots, n - 1$ and, during previous iterations of the extension method, has produced an incomplete equilibrium $(\vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}) \in \vec{F}_{\ell + 1} \times \vec{G}_{\ell + 1}$.
+    Player 1's set of available actions is either $\calA(\ell) = \{0\}$ or $\calA(\ell) = \{0, 1\}$ and Player 2's set of available actions is either $\calB(\ell) = \{0\}$ or $\calB(\ell) = \{0, 1\}$.
+    So, the generic extensions $\vec{f}_\ell \in \vec{F}_{\ell}(\vec{f}^*_{\ell + 1})$ and $\vec{g}_\ell \in \vec{G}_{\ell}(\vec{g}^*_{\ell + 1})$ are entirely determined by the probabilities
+    \[
+        f_\ell(\ell, 0) 
+            = p_0
+            \in [0, 1]
+        \quad\text{and}\quad
+        g_\ell(\ell, 0) 
+            = q_0
+            \in [0, 1]
+    \]
+    of forgoing learning.
+    Define $p_1 = 1 - p_0$ and $q_1 = 1 - q_0$ for the sake of notational compactness.
+    Also, letting $s_{a, b} = (i + a, b + j)$ for all $a \in \calA(\ell)$ and $b \in \calB(\ell)$, define some additional auxiliary quantities
+    \begin{equation}  \label{eq:extension-constants}
+        V^k_{a, b}
+            =
+            \begin{cases}
+                r^k(\ell, a, b) + \beta v^k_\beta\big(s_{a, b}, \vec{f}_{\ell + 1}, \vec{g}_{\ell + 1}\big), & (a, b) \neq (0, 0), \\
+                r^k(\ell, a, b), & (a, b) = (0, 0), \\
+            \end{cases}
+    \end{equation}
+    for all $k = 1, 2$ and $(a, b) \in \calA(\ell) \times \calB(\ell)$.
+    \autoref{lem:ordered-state-value} expresses the discounted value of $(\vec{f}_\ell, \vec{g}_\ell)$ in terms of the implemented strategies.
+    Note that, since the expressions in \eqref{eq:extension-constants} do not depend on the current strategies $\vec{f}_\ell(\ell)$ or $\vec{g}_\ell(\ell)$, they can be treated as constants throughout the process of extending the incomplete equilibrium.
+
+    \begin{lemma}  \label{lem:ordered-state-value}
+        Fix a state $\ell = 1, 2, \ldots, n - 1$ and an incomplete equilibrium $(\vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}) \in \vec{F}_{\ell + 1} \times \vec{G}_{\ell + 1}$.
+        Then,
+        \begin{equation} \label{eq:ordered-state-value}
+            v^k_\beta(\ell, \vec{f}_\ell, \vec{g}_\ell)
+                = \frac{1}{1 - \beta p_0 q_0} \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} p_a V^k_{a, b} q_b
+        \end{equation}
+        is the discounted value of $(\vec{f}_\ell, \vec{g}_\ell) \in \vec{F}_\ell(\vec{f}^*_{\ell + 1}) \times \vec{G}_\ell(\vec{g}^*_{\ell + 1})$ to Player $k = 1, 2$.
+    \end{lemma}
+
+    \begin{proof}
+        Recall from \eqref{eq:expected-immediate-utility} that the expected immediate utility of $(\vec{f}_\ell, \vec{g}_\ell)$ to Player $k = 1, 2$ is
+        \begin{equation}  \label{temp:ordered-state-value-1}
+            r^k(\ell, \vec{f}_\ell, \vec{g}_\ell)
+                = \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} f_\ell(\ell, a) r^k(\ell, a, b) g_\ell(\ell, b)
+                = \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} p_a r^k(\ell, a, b) q_b
+        \end{equation}
+        and from \eqref{eq:expected-transition-probabilities} that the transition probabilities are
+        \begin{equation}  \label{temp:ordered-state-value-2}
+        \begin{split}
+            p(\ell' | \ell, \vec{f}_\ell, \vec{g}_\ell)
+                &=
+                \begin{cases}
+                    f_\ell(\ell, a) g_\ell(\ell, b), & i' = i + a \text{ for some } a \in \calA(\ell) \text{ and} \\
+                                                     & j' = j + b \text{ for some } b \in \calB(\ell), \\
+                    0, & \text{otherwise}, \\
+                \end{cases} \\
+                &=
+                \begin{cases}
+                    p_a q_b, & i' = i + a \text{ for some } a \in \calA(\ell) \text{ and}\\
+                                                     & j' = j + b \text{ for some } b \in \calB(\ell), \\
+                    0, & \text{otherwise}, \\
+                \end{cases} \\
+        \end{split}
+        \end{equation}
+        for all $\ell' = 1, 2, \ldots, n$ with $s_\ell = (i, j)$ and $s_{\ell'} = (i', j')$.
+        Observe that, after considering the possible actions that can be selected to reach the future states, we have
+        \begin{equation} \label{temp:ordered-state-value-3}
+            \sum_{\ell' = \ell + 1}^n v_\beta^k(\ell', \vec{f}_\ell, \vec{g}_\ell) p(\ell' | \ell, \vec{f}_\ell, \vec{g}_\ell)
+                = \mathop{\displaystyle\sum_{a \in \calA(\ell)} \displaystyle\sum_{b \in \calB(\ell)}}_{(a, b) \neq (0, 0)} p_a v^k_\beta(s_{a, b}, \vec{f}_\ell, \vec{g}_\ell) q_b.
+        \end{equation}
+        Substitute \eqref{temp:ordered-state-value-1}, \eqref{temp:ordered-state-value-2}, and \eqref{temp:ordered-state-value-3} into the expression for the discounted value of $(\vec{f}_\ell, \vec{g}_\ell)$ in \eqref{eq:general-ordered-state-value} to obtain
+        \begin{equation}  \label{temp:ordered-state-value-4}
+        \begin{split}
+            v^k_\beta(\ell, \vec{f}_\ell, \vec{g}_\ell)
+                &= \frac{r^k(\ell, \vec{f}_\ell, \vec{g}_\ell) + \beta \sum_{\ell' = \ell + 1}^n v_\beta^k(\ell', \vec{f}_\ell, \vec{g}_\ell) p(\ell' | \ell, \vec{f}_\ell, \vec{g}_\ell)}{1 - \beta p(\ell | \ell, \vec{f}_\ell, \vec{g}_\ell)} \\
+                &= \frac{1}{1 - \beta p_0 q_0} \left(\vcenter{\hbox{$\displaystyle\sum_{a \in \calA(\ell)} \displaystyle\sum_{b \in \calB(\ell)} p_a r^k(\ell, a, b) q_b + \beta \mathop{\displaystyle\sum_{a \in \calA(\ell)} \displaystyle\sum_{b \in \calB(\ell)}}_{(a, b) \neq (0, 0)} p_a v^k_\beta(s_{a, b}, \vec{f}_\ell, \vec{g}_\ell) q_b$}}\right) \\
+                &= \frac{1}{1 - \beta p_0 q_0} \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} p_a V^k_{a, b} q_b.
+        \end{split}
+        \end{equation}
+        Clearly, \eqref{temp:ordered-state-value-4} gives the desired valuation of the strategy profile $(\vec{f}_\ell, \vec{g}_\ell)$ to Player $k = 1, 2$.
+    \end{proof}
+
+    Next, we will reformulate the inequalities in \eqref{eq:extension-nash-equilibrium} to develop a coupled pair of equivalent maximisation problems.
+    If $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell(\vec{f}^*_{\ell + 1}) \times \vec{G}_\ell(\vec{g}^*_{\ell + 1})$ is an incomplete equilibrium, then we will write
+    \[
+        f^*_\ell(\ell, 0) 
+            = p^*_0 
+            \in [0, 1]
+        \quad\text{and}\quad
+        g^*_\ell(\ell, 0)
+            = q^*_0
+            \in [0, 1]
+    \]
+    with $p^*_1 = 1 - p^*_0$ and $q^*_1 = 1 - q^*_0$.
+    Evidently, from the valuation of player strategies in \autoref{lem:ordered-state-value}, the strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell)$ satisfies \eqref{eq:extension-nash-equilibrium} if and only if the probabilities $p^*_0$ and $q^*_0$ simultaneously solve the maximisation problems
+    \begin{equation}  \label{eq:extension-maximisation-1}
+        p^*_0
+            = \argmax_{\vec{f}_\ell \in \vec{F}_\ell(\vec{f}^*_{\ell + 1})} v^1_\beta\big(\ell, \vec{f}_\ell, \vec{g}^*_\ell\big)
+            = \argmax_{p_0 = 1 - p_1 \in [0, 1]} \frac{1}{1 - \beta p_0 q^*_0} \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} p_a V^1_{a, b} q^*_b
+    \end{equation}
+    and
+    \begin{equation}  \label{eq:extension-maximisation-2}
+        q^*_0
+            = \argmax_{\vec{g}_\ell \in \vec{G}_\ell(\vec{g}^*_{\ell + 1})} v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}_\ell\big)
+            = \argmax_{q_0 = 1 - q_1 \in [0, 1]} \frac{1}{1 - \beta p^*_0 q_0} \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} p^*_a V^2_{a, b} q_b.
+    \end{equation}
+    A method for calculating solutions to \eqref{eq:extension-maximisation-1} and \eqref{eq:extension-maximisation-2} is provided in \autoref{alg:extension-algorithm} and verified in \autoref{prop:extension-algorithm-verification}.
+    Note that a \emph{best response} is a strategy that maximises the player's utility conditional on their opponent's selected strategy.
+    We claim that this method computes every solution when the discounted incremental learning game is \emph{non-degenerate} at the state $\ell$; that is, when every pure strategy has no completely mixed best responses.
+    This assumption ensures that there are finitely many solutions, which allows us to exhaustively find every equilibrium.\footnote{The
+        assumption of non-degeneracy is used in several game-theoretic algorithms, including the support enumeration algorithm that inspires \autoref{alg:extension-algorithm} (see, for example, \parencite[Algorithm 3.4]{vonStengel2007}).
+    }
+
+    \begin{algorithm}  \label{alg:extension-algorithm}
+    \begin{enumerate}[
+        leftmargin=*,
+        align=left,
+        label=\textbf{Step \arabic*.}
+    ]
+        \item[]
+    
+        \item[\textbf{Input.}]
+        A state $\ell = 1, 2, \ldots, n - 1$ and an incomplete equilibrium $(\vec{f}^*_{\ell + 1}, \vec{g}^*_{\ell + 1}) \in \vec{F}_{\ell + 1} \times \vec{G}_{\ell + 1}$.
+        
+        \item[\textbf{Output.}]
+        A set of strategy profiles $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell(\vec{f}^*_{\ell + 1}) \times \vec{G}_\ell(\vec{g}^*_{\ell + 1})$ that solve \eqref{eq:extension-nash-equilibrium}.
+
+        \item (\textit{Pure Strategies})
+        Return every strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell(\vec{f}^*_{\ell + 1}) \times \vec{G}_\ell(\vec{g}^*_{\ell + 1})$ such that
+        \begin{equation}  \label{eq:pure-strategy-extension-condition-1}
+            p^*_0
+                = \argmax_{p_0 = 1 - p_1 \in \{0, 1\}} \frac{1}{1 - \beta p_0 q^*_0} \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} p_a V^1_{a, b} q^*_b
+        \end{equation}
+        and
+        \begin{equation} \label{eq:pure-strategy-extension-condition-2}
+            q^*_0
+                = \argmax_{q_0 = 1 - q_1 \in \{0, 1\}} \frac{1}{1 - \beta p^*_0 q_0} \sum_{a \in \calA(\ell)} \sum_{b \in \calB(\ell)} p^*_a V^2_{a, b} q_b.
+        \end{equation}
+        Observe that, because $\vec{f}^*_\ell$ and $\vec{g}^*_\ell$ are pure strategies, these conditions can be checked by exhaustion.
+
+        \item (\textit{Mixed Strategies})
+        Return every strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell) \in \vec{F}_\ell(\vec{f}^*_{\ell + 1}) \times \vec{G}_\ell(\vec{g}^*_{\ell + 1})$ such that
+        \begin{equation} \label{eq:mixed-strategy-extension-condition}
+            \sum_{a \in \calA(\ell)} \big( p^*_a V_{a, 0}^2 - p^*_a (1 - \beta p^*_0) V_{a, 1}^2 \big) = 0
+            \quad\text{and}\quad
+            \sum_{b \in \calB(\ell)}  \big( q^*_b V^1_{0, b} - q^*_b (1 - \beta q^*_0) V^1_{1, b} \big) = 0
+        \end{equation}
+        for some $p^*_0 = 1 - p^*_1 \in (0, 1)$ and $q^*_0 = 1 - q^*_1 \in (0, 1)$.
+        These quadratic equations in $p^*_0$ and $q^*_0$ can be solved via the quadratic formula.
+    \end{enumerate}
+    \end{algorithm}
+
+    \begin{proposition} \label{prop:extension-algorithm-verification}
+        If $\Gamma_\beta$ is non-degenerate at the present state $\ell = 1, 2, \ldots, n$, then there are finitely many solutions to the extension conditions in \eqref{eq:extension-nash-equilibrium}.
+        Moreover, every solution is returned by \autoref{alg:extension-algorithm}.
+    \end{proposition}
+    
+    \begin{proof}
+        First, by the assumption that $\Gamma_\beta$ is non-degenerate, a pure strategy can never have a best response in completely mixed strategies.
+        It follows that a pure strategy solution to \eqref{eq:extension-nash-equilibrium} can be found after only checking the necessary inequalities over the space of other pure strategies.
+        Hence, every pure strategy solution---of which there are finitely many---is returned during Step 1 of \autoref{alg:extension-algorithm}.
+
+        Second, given that the extension conditions in \eqref{eq:extension-nash-equilibrium} have been reduced to a pair of maximisation problems in \eqref{eq:extension-maximisation-1} and \eqref{eq:extension-maximisation-2}, it is useful to compute the partial derivatives of $v^k_\sbeta(\ell, \vec{f}_\ell, \vec{g}_\ell)$ with respect to $p_0$ and $q_0$.
+        So, by applying the quotient rule to the strategy valuation from \autoref{lem:ordered-state-value}, we obtain
+        \begin{equation} \label{temp:extension-algorithm-verification-1}
+            \frac{\partial}{\partial p_0} v^1_\beta(\ell, \vec{f}_\ell, \vec{g}_\ell)
+                = \frac{1}{(1 - \beta p_0 q_0)^2} \sum_{b \in \calB(\ell)}  \big( q_b V^1_{0, b} - q_b (1 - \beta q_0) V^1_{1, b} \big)
+        \end{equation}
+        and
+        \begin{equation} \label{temp:extension-algorithm-verification-2}
+            \frac{\partial}{\partial q_0} v^2_\beta(\ell, \vec{f}_\ell, \vec{g}_\ell)
+                = \frac{1}{(1 - \beta p_0 q_0)^2} \sum_{a \in \calA(\ell)} \big( p_a V_{a, 0}^2 - p_a (1 - \beta p_0) V_{a, 1}^2 \big).
+        \end{equation}
+        The signs and zeros of these partial derivatives are entirely determined by the opponent's choice of strategy.
+        Explicitly, $q^*_0$ and $p^*_0$ are roots of \eqref{temp:extension-algorithm-verification-1} and \eqref{temp:extension-algorithm-verification-2} if and only if
+        \begin{equation} \label{temp:extension-algorithm-verification-3}
+            \sum_{a \in \calA(\ell)} \big( p^*_a V_{a, 0}^2 - p^*_a (1 - \beta p^*_0) V_{a, 1}^2 \big) = 0
+            \quad\text{and}\quad
+            \sum_{b \in \calB(\ell)}  \big( q^*_b V^1_{0, b} - q^*_b (1 - \beta q^*_0) V^1_{1, b} \big) = 0.
+        \end{equation}
+        Clearly, under the conditions in \eqref{temp:extension-algorithm-verification-3}, the partial derivative of Player 1's valuation in \eqref{temp:extension-algorithm-verification-1} is zero regardless of $p_0$ and the partial derivative of Player 2's valuation in \eqref{temp:extension-algorithm-verification-2} is zero regardless of $q_0$.
+        This guarantees that, for all $\vec{f}_\ell \in \vec{F}_\ell(\vec{f}^*_{\ell + 1})$ and $\vec{g}_\ell, \vec{G}_\ell(\vec{g}^*_{\ell + 1})$, we have
+        \begin{equation} \label{temp:extension-algorithm-verification-4}
+            v^1_\beta\big(\ell, \vec{f}_\ell, \vec{g}^*_\ell\big)
+                = v^1_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}^*_\ell\big)
+            \quad\text{and}\quad
+            v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}_\ell\big)
+                = v^2_\beta\big(\ell, \vec{f}^*_\ell, \vec{g}^*_\ell\big).
+        \end{equation}
+        Thus, since the strategy profile $(\vec{f}^*_\ell, \vec{g}^*_\ell)$ satisfies the extension conditions whenever $p^*_0$ and $q^*_0$ solve \eqref{temp:extension-algorithm-verification-3}, every completely mixed solution to \eqref{eq:extension-nash-equilibrium} is returned in Step 2 of \autoref{alg:extension-algorithm}.
+        
+        Lastly, to show that there are finitely many solutions in completely mixed strategies, notice that the existence of infinitely many solutions requires either $p^*_0$ or $q^*_0$ to solve \eqref{temp:extension-algorithm-verification-3} for every $p^*_0 \in [0, 1]$ or $q^*_0 \in [0, 1]$.
+        If this requirement holds for all $p^*_0 \in [0, 1]$, then Player 2 is always indifferent between their actions irrespective of Player 1's strategy.
+        This contradicts our assumption of non-degeneracy because Player 2 has completely mixed best responses to Player 1's pure strategy choices: either $p^*_0 = 0$ and $p^*_0 = 1$.
+        Therefore, there are only finitely many solutions to the quadratic equations in Step 2.
+    \end{proof}
+
+    Note that, as a consequence of its validity, we can use \autoref{alg:extension-algorithm} to find the solutions to \eqref{eq:extension-nash-equilibrium} in \autoref{alg:incremental-learning-backward-induction}.
+    The fact that we are capable of giving every suitable solution to these inequalities means that a backward induction procedure can exhaustively compute the equilibria of a non-degenerate incremental learning game.
+    In particular, to find every equilibrium, we can simply branch \autoref{alg:incremental-learning-backward-induction} whenever multiple solutions are returned from \autoref{alg:extension-algorithm}.
+    Unfortunately, because there is an uncountably infinite number of solutions to \eqref{eq:extension-nash-equilibrium} in a degenerate game, we cannot possibly return every equilibrium.
+    Instead, a compromise might involve only taking the pure strategy solutions whenever a continuum of solutions exists.
+    The resulting backward induction procedure, with this compromise included, is implemented using Python in \texttt{incremental\_solver.py}.
+
+
+
+\section{Incremental Learning in Tennis} \label{sec:incremental-learning-in-tennis}
+    \begin{figure}[b]
+        \centering
+        \input{tex/chapter4/figures/tennis_point}
+        \caption[Winning Probabilities in a Simple Tennis Game]{The probabilities of Player 1 and Player 2 winning a tennis point for each combination of actions.}
+        \label{fig:tennis-point}
+    \end{figure}
+
+    Finally, to apply the recently described backward induction algorithm and illustrate an example of equilibrium behaviour in incremental learning games, we will look at a simple tennis game borrowed form \parencite[Section 4.2]{Beck2013}.
+    Consider a repeated sequence of tennis points in which Player 1 and Player 2 can select from among the actions ``Good Shot'', ``Safe Shot'', and ``Out''.
+    After Player 1 and Player 2 select a pair of actions, the probability of winning the point is determined by \autoref{fig:tennis-point}.
+
+    \begin{figure}[t]
+        \centering
+        \input{tex/chapter4/figures/tennis_game_plot.pgf}
+        \caption[Game Value of a Simple Tennis Game]{The dependence of the game value $\val(G_{\lambda, \mu})$ on learning parameters $\lambda, \mu \in [0, 1]$ for a tennis point with parameterised incompetence. Generated using \texttt{incompetent\_game\_plot.py}.}
+        \label{fig:tennis-game-plot}
+    \end{figure}
+
+    \begin{figure}[t]
+        \centering
+        \begin{minipage}{\textwidth}
+            \subbottom[\label{fig:tennis-equilibrium-a}]%
+                {\input{tex/chapter4/figures/tennis_equilibrium_a}}
+            \hfill
+            \subbottom[\label{fig:tennis-equilibrium-b}]%
+                {\input{tex/chapter4/figures/tennis_equilibrium_b}}
+
+            \subbottom[\label{fig:tennis-equilibrium-c}]%
+                {\input{tex/chapter4/figures/tennis_equilibrium_c}}
+            \hfill
+            \caption[Equilibria in a Tennis Game with Learning]{The learning strategies under various equilibria in a simple tennis game with incremental learning. Computed using \texttt{incremental\_solver.py}.}
+            \label{fig:tennis-equilibria}
+        \end{minipage}
+    \end{figure}
+
+    Assume that, to convert these probabilities into a matrix game, a player is given $-100$ utility after losing a point and a player is given $100$ utility after winning a point.
+    Clearly, this situation can be expressed as a $3 \times 3$ matrix game $G$ with the utility matrix
+    \[
+        R
+            =
+            \begin{pmatrix}
+                0    & 40   & 100 \\
+                -40  & 0    & 100 \\
+                -100 & -100 & 0   \\
+            \end{pmatrix}.
+    \]
+    Unsurprisingly, the unique equilibrium $(\vec{x}^*, \vec{y}^*)$ of the competent game $G$ has $\vec{x}^* = (1, 0, 0)$ and $\vec{y}^* = (1, 0, 0)$; that is, both Player 1 and Player 2 should always select ``Good Shot''.
+    Suppose that the incompetence of Player 1 is parameterised by $Q_1 : [0, 1] \to \RR^{3 \times 3}$ where, for all $\lambda \in [0, 1]$, we have
+    \[
+        Q_1(\lambda)
+            =
+            \begin{pmatrix}
+                \nicefrac{3}{10} & \nicefrac{1}{10} & \nicefrac{3}{5}  \\
+                \nicefrac{1}{10} & \nicefrac{3}{5}  & \nicefrac{3}{10} \\
+                0 & 0 & 1 \\
+            \end{pmatrix}
+            (1 - \lambda) +
+            \begin{pmatrix}
+                1 & 0 & 0 \\
+                0 & 1 & 0 \\
+                0 & 0 & 1 \\
+            \end{pmatrix}
+            \lambda
+    \]
+    and the incompetence of Player 2 is parametersied by $Q_2 : [0, 1] \to \RR^{3 \times 3}$ where, for all $\mu \in [0, 1]$, we have
+    \[
+        Q_2(\mu)
+            =
+            \begin{pmatrix}
+                \nicefrac{3}{10} & \nicefrac{1}{10} & \nicefrac{3}{5}  \\
+                \nicefrac{1}{10} & \nicefrac{3}{5}  & \nicefrac{3}{10} \\
+                0 & 0 & 1 \\
+            \end{pmatrix}
+            (1 - \mu) +
+            \begin{pmatrix}
+                1 & 0 & 0 \\
+                0 & 1 & 0 \\
+                0 & 0 & 1 \\
+            \end{pmatrix}
+            \mu.
+    \]
+    Although an incompetent player is more likely to accidentally execute ``Out'' when they select ``Good Shot'' than when they select ``Safe Shot'', this is compensated for by having ``Good Shot'' being more likely to win than ``Safe Shot''.
+    The game value of the resulting parameterised incompetent game is shown in \autoref{fig:tennis-game-plot}.
+    Now, to create a discounted incremental learning game $\Gamma_\beta$ from this tennis game, we allow Player 1 to attain the learning parameters
+    \[
+        \Gamma
+            =
+            \big\{ \lambda_i = \frac{i - 1}{5} : i = 1, 2, \ldots, 6 \big\}
+    \]
+    and Player 2 to attain the learning parameters
+    \[
+        \Mu
+            =
+            \big\{ \mu_j = \frac{j - 1}{5} : j = 1, 2, \ldots, 6 \big\}.
+    \]
+    Additionally, for any $i = 1, 2, \ldots, 6$ and $j = 1, 2, \ldots, 6$, the learning cost at state $(i, j)$ is $c^1(i, j) = 10$ and $c^2(i, j) = 10$ for Player 1 and Player 2, respectively.
+    The future rewards are progressively discounted by a discount factor of $\beta = \nicefrac{19}{20}$.
+
+    Next, applying the aforementioned backward induction algorithm to the tennis game with incremental learning, we find that there are a total of three equilibria, which are shown in \autoref{fig:tennis-equilibria}.
+    A node indicates a  pair of learning parameters and an arc represents a transition realised by the equilibrium.
+    So, a vertical arrow means that only Player 1 learns, a horizontal arrow means that only Player 2 learns, a diagonal arrow means that both players learn, and a loop means that neither player learns.
+    An equilibrium in mixed strategies is shown in \autoref{fig:tennis-equilibrium-c} and the probabilities of each transition are included.
+
+    The only differences between the equilibria in \autoref{fig:tennis-equilibria} are the strategies employed at the initial state $(0, 0)$ and, at the remaining states, the players always choose to learn whenever possible.
+    Namely, at the initial state, neither player learns in \autoref{fig:tennis-equilibrium-a}, both players learn in \autoref{fig:tennis-equilibrium-b}, and learning is unlikely in \autoref{fig:tennis-equilibrium-c}.
+    How can these seemingly opposite equilibria occur within the same game?
+    The equilibrium shown in \autoref{fig:tennis-equilibrium-a} arises because, when your opponent initially chooses not to learn, forgoing the benefits of learning is preferable to paying the immediate learning cost.
+    Similarly, the equilibrium shown in \autoref{fig:parameterised-incompetent-games-b} arises because, when your opponent initially chooses to learn, paying the immediate learning cost is preferable to forgoing the benefits of learning.
+    
+    \begin{table}[t]
+        \centering
+        \input{tex/chapter4/figures/tennis_equilibria_values}
+        \caption[Discounted Values of Equilibria in a Tennis Game with Learning]{The discounted values of various equilibria in a simple tennis game with incremental learning.}
+        \label{tab:tennis-equilibria-values}
+    \end{table}
+
+    Here, we encounter a problem that can often arise in general-sum games with multiple equilibria; the concept of a Nash equilibrium cannot be used alone to recommend a single strategy for each player.
+    Recall that a similar observation was made about ``Battle of the Sexes'' (shown in \autoref{fig:battle-of-the-sexes}) whose three equilibria produced different expected utilities.
+    Still, does the incremental learning game have an equilibrium that both players would prefer over the alternatives?
+    This question is answered by comparing the discounted values of each equilibrium in \autoref{tab:tennis-equilibria-values}.
+    Notice that the discounted value awarded to both players is greatest when using the equilibrium in \autoref{fig:tennis-equilibrium-a} or, in other words, this equilibrium is \emph{Pareto superior} to the remaining alternatives.
+    Precisely, a strategy profile $(\vec{f}^*, \vec{g}^*) \in \vec{F} \times \vec{G}$ is Pareto superior to an alternative strategy profile $(\vec{f} \times \vec{g}) \in \vec{F} \times \vec{G}$ whenever, for every $k = 1, 2$, we have
+    \[
+        \vec{v}^k_\beta(\vec{f}^*, \vec{g}^*)
+            \ge \vec{v}^k_\beta(\vec{f}, \vec{g}),
+    \]
+    with a strict inequality holding for some $k = 1, 2$ \parencite{Osborne1994}.
+    Thus, since the players both prefer the equilibrium in \autoref{fig:parameterised-incompetent-games-a}, we might recommend that Player 1 and Player 2 choose not to improve upon their initial levels of incompetence.
+    Note that, as is the case with any general-sum equilibrium, this recommendation relies on a player's opponent following the same reasoning.

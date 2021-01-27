@@ -1,0 +1,831 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Chapter 3 - A Strategic Perspective                                          %
+% ---------------------------------------------------------------------------- %
+
+\chapter{A Strategic Perspective}  \label{chp:a-strategic-perspective}
+    A prominent feature in several of the game value graphs from \autoref{fig:parameterised-incompetent-games} is the presence of plateaus, or regions over which the game value is constant.
+    Indeed, aligning with our observations, Beck \parencite{Beck2013} speculates that the game value might become constant as the players approach complete competence.
+    Here, primarily motivated by these plateaus, we will display various properties of incompetent games by exploring incompetence from a strategic perspective.
+
+    The introduction of executed strategies and executable strategies in \autoref{sec:executed-strategies} establishes this ``strategic perspective'' of incompetence.
+    This differs from previous approaches to incompetence in that it focuses on how a player's skill modifies their strategy space rather than their utility function.
+    These concepts are used in \autoref{sec:explaining-plateaus} to explain the appearance of plateaus in the game value of parameterised incompetent games.
+    Later, in \autoref{sec:optimal-learning-parameters}, we use executable strategies to describe optimal learning parameter choices under certain conditions.
+
+
+
+\section{Executed Strategies}  \label{sec:executed-strategies}
+    Consider a matrix game $G$ and a corresponding incompetent game $G_\ms{Q}$, with all definitions from \autoref{chp:game-theory} being reused.
+    Recall that, in their introduction of incompetence to matrix games, Beck and Filar \parencite{Beck2007} distinguish between selectable and executable actions.\footnote{
+        Unlike Beck and Filar \parencite{Beck2007}, we require each player's set of selectable and executable strategies to coincide.
+        Nevertheless, with some additional notation to distinguish between selectable and executable strategies, it is straightforward to adapt our conversation to their broader setting.
+    }
+    A player is required to select an action (called the selected action) that, after any accidental deviations occur, realises a potentially different action (called the executed action).
+    We might say that, if Player 1 chooses $a_i$ for some $i = 1, 2, \ldots, m_1$ and Player 2 chooses $b_j$ for some $j = 1, 2, \ldots, m_2$, then $\vec{q}_1(i)$ and $\vec{q}_2(j)$ are the \emph{executed strategies} realised by Player 1 and Player 2, respectively.
+    This reflects the definition of $\vec{q}_1(i)$ and $\vec{q}_2(j)$ as the incompetence-induced probability distributions over each player's executable actions.
+
+    Similarly, we can extend the concept of an executed strategy to a player's entire mixed strategy space.
+    Suppose $\vec{x}' \in \vec{X}$ is Player 1's selected strategy and $\vec{y}' \in \vec{Y}$ is Player 2's selected strategy.
+    Define, for all $\alpha = 1, 2, \ldots, m_1$ and $\beta = 1, 2, \ldots, m_2$, the quantities
+    \begin{equation}  \label{eq:executed-action-probability}
+        x_\alpha
+            = \sum_{i = 1}^{m_1} x'_i q_1(i, \alpha)
+            = \vec{x}' Q_1 \vec{e}_\alpha^\transp
+        \quad\text{and}\quad
+        y_\beta
+            = \sum_{j = 1}^{m_2} y'_j q_2(j, \beta)
+            = \vec{y}' Q_2 \vec{e}_\beta^\transp
+    \end{equation}
+    where $\vec{e}_\alpha \in \RR^{1 \times m_1}$ and $\vec{e}_\beta \in \RR^{1 \times m_2}$ are the standard basis vectors in the $\alpha^{\text{th}}$ and $\beta^{\text{th}}$ directions.
+    We interpret $x_\alpha$ as being the probability that Player 1 executes action $a_\alpha$ and $y_\beta$ as being the probability that Player 2 executes action $b_\beta$.
+    These probabilities are compiled to form the \emph{executed strategies} $\vec{x} = (x_1, x_2, \ldots, x_{m_1})$ and $\vec{y} = (y_1, y_2, \ldots, y_{m_2})$, which can be expressed as
+    \begin{equation}  \label{eq:executed-strategies}
+        \vec{x}
+            = \vec{x}' Q_1
+        \quad\text{and}\quad
+        \vec{y}
+            = \vec{y}' Q_2.
+    \end{equation}
+    Hence, given that the strategy profile $(\vec{x}' , \vec{y}') \in \vec{X} \times \vec{Y}$ has been selected, we know that the corresponding strategy profile $(\vec{x}' Q_1, \vec{y}' Q_2)$ is executed.
+
+    What strategies are the players able to execute?
+    We will say that $\vec{x} \in \vec{X}$ is an \emph{executable strategy} for Player 1 (under the incompetence matrix $Q_1$) whenever there exists $\vec{x}' \in \vec{X}$ satisfying $\vec{x} = \vec{x}' Q_1$.
+    Analogously, we will say that $\vec{y} \in \vec{Y}$ is an \emph{executable strategy} for Player 2 (under the incompetence matrix $Q_2$) whenever there exists $\vec{y}' \in \vec{Y}$ satisfying $\vec{y} = \vec{y}' Q_2$.
+    The set of executable strategies belonging to Player 1 is
+    \begin{equation} \label{eq:executable-strategies-1}
+        \vec{E}_1(Q_1)
+            = \left\{
+                \vec{x} \in \vec{X}
+                : \vec{x} = \vec{x}' Q_1 \text{ for some } \vec{x}' \in \vec{X}
+            \right\}
+    \end{equation}
+    and the set of executable strategies belonging to Player 2 is
+    \begin{equation} \label{eq:executable-strategies-2}
+        \vec{E}_2(Q_2)
+            = \left\{
+                \vec{y} \in \vec{Y}
+                : \vec{y} = \vec{y}' Q_2 \text{ for some } \vec{y}' \in \vec{Y}
+            \right\}.
+    \end{equation}
+    \nomenclature[D, 06]{$\vec{E}_1(Q_1)$}{The executable strategies belonging to Player 1. \nomrefpage}%
+    \nomenclature[D, 07]{$\vec{E}_2(Q_2)$}{The executable strategies belonging to Player 2. \nomrefpage}%
+    If the choice of incompetence matrices is unambiguous, then it is often convenient to write $\vec{E}_1$ instead of $\vec{E}_1(Q_1)$ and $\vec{E}_2$ instead of $\vec{E}_2(Q_2)$.
+    Moreover, provided a pair of learning trajectories $Q_1 : [0, 1] \to \RR^{m_1 \times m_1}$ and $Q_2 : [0, 1] \to \RR^{m_2 \times m_2}$, we will replace $\vec{E}_1(Q_1(\lambda))$ with $\vec{E}_1(\lambda)$ and $\vec{E}_2(Q_2(\mu))$ with $\vec{E}_2(\mu)$.
+    \nomenclature[E, 05]{$\vec{E}_1(\lambda)$}{The executable strategies belonging to Player 1 for any $\lambda \in [0, 1]$. \nomrefpage}%
+    \nomenclature[E, 06]{$\vec{E}_2(\mu)$}{The executable strategies belonging to Player 2 for any $\mu \in [0, 1]$. \nomrefpage}%
+
+    Next, to characterise the geometry of the spaces of executable strategies $\vec{E}_1$ and $\vec{E}_2$, observe that the strategies $\vec{x} \in \vec{X}$ and $\vec{y} \in \vec{Y}$ are executable if and only if
+    \[
+        \vec{x}
+            = \vec{x}' Q_1
+            = \sum_{i = 1}^{m_1} x'_i \vec{q}_1(i)
+        \quad\text{and}\quad
+        \vec{y}
+            = \vec{y}' Q_2
+            = \sum_{j = 1}^{m_2} y'_j \vec{q}_2(j)
+    \]
+    for some $\vec{x}' \in \vec{X}$ and $\vec{y}' \in \vec{Y}$.
+    This means that $\vec{x}$ is a convex combination of the row vectors $\vec{q}_1(1), \vec{q}_1(2), \ldots, \vec{q}_1(m_1)$ of $Q_1$ and $\vec{y}$ is a convex combination of the row vectors $\vec{q}_2(1), \vec{q}_2(2), \ldots, \vec{q}_2(m_2)$ of $Q_2$.
+    So, Player 1's set of executable strategies $\vec{E}_1$ is the convex hull of $\{\vec{q}_1(i) : i = 1, 2, \ldots, m_1\}$ and Player 2's set of executable strategies $\vec{E}_2$ is the convex hull of $\{\vec{q}_2(j) : j = 1, 2, \ldots, m_2\}$.
+
+    Suppose a game of ``Rock, Paper, Scissors'' (shown in \autoref{fig:extensive-rock-paper-scissors} and \autoref{fig:normal-rock-paper-scissors}) is being played between a pair of players with incompetence matrices
+    \[
+        Q_1
+            =
+            \begin{pmatrix}
+                \nicefrac{2}{3} & \nicefrac{1}{6} & \nicefrac{1}{6} \\
+                \nicefrac{1}{6} & \nicefrac{2}{3} & \nicefrac{1}{6} \\
+                \nicefrac{1}{6} & \nicefrac{1}{6} & \nicefrac{2}{3} \\
+            \end{pmatrix}
+        \quad\text{and}\quad
+        Q_2
+            =
+            \begin{pmatrix}
+                0 & \nicefrac{1}{3} & \nicefrac{2}{3} \\
+                \nicefrac{2}{3} & 0 & \nicefrac{1}{3} \\
+                \nicefrac{1}{3} & \nicefrac{2}{3} & 0 \\
+            \end{pmatrix}.
+    \]
+    The executable strategy spaces $\vec{E}_1$ and $\vec{E}_2$ are the convex hulls of the rows within the matrices $Q_1$ and $Q_2$, respectively.
+    These convex hulls are shown as shaded regions in \autoref{fig:rock-paper-scissors-executable-strategies} and, in response to our previous question, we see that there are some strategies that neither player can execute.
+
+    \begin{figure}[t]
+        \centering
+        \input{tex/chapter3/figures/rock_paper_scissors_executable_strategies}
+        \caption[Executable Strategies in Incompetent ``Rock, Paper, Scissors'']{The executable strategy spaces belonging to Player 1 (blue) and Player 2 (red) under incompetence in ``Rock, Paper, Scissors''.}
+        \label{fig:rock-paper-scissors-executable-strategies}
+    \end{figure}
+
+
+
+\section{Game Value Plateaus}  \label{sec:explaining-plateaus}
+    Now, we want to apply the concepts of executed and executable strategies to explain the presence of plateaus in \autoref{fig:parameterised-incompetent-games}.
+    Beck \parencite[Theorem 3.3]{Beck2013} notes that, if a pair of completely mixed incompetent games are derived from the same matrix game, then their game values are equal.
+    We will further explore this observation by showing that rectangular plateaus emerge when, despite their limited skills, players are able to execute their competent optimal strategies.
+
+    Again, reusing the notation introduced in \autoref{chp:game-theory}, consider a matrix game $G$ and an associated incompetent game $G_\ms{Q}$.
+    Our initial goal is to connect the equilibria of $G$ and $G_\ms{Q}$ through the lens of executed strategies.
+    This leads us to question when an equilibrium $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ of $G_\ms{Q}$ produces an equilibrium $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ of $G$, and vice versa.
+    Below, \autoref{prop:incompetent-game-equilibrium} answers the ``backward direction'' of this question by showing that, given an equilibrium $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ of $G$ for some $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$, the strategy profile $(\vec{x}^*, \vec{y}^*)$ is always an equilibrium of $G_\ms{Q}$.
+
+    \begin{proposition}  \label{prop:incompetent-game-equilibrium}
+        Consider a strategy profile $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ such that $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ is an equilibrium of the competent game $G$.
+        Then, $(\vec{x}^*, \vec{y}^*)$ is an equilibrium of the incompetent game $G_\ms{Q}$.
+    \end{proposition}
+
+    \begin{proof}
+        We want to prove that neither player possesses a profitable unilateral deviation from the strategy profile $(\vec{x}^*, \vec{y}^*)$ in $G_\ms{Q}$.
+        First, to the contrary, assume that Player 1 has a strategy $\vec{x} \in \vec{X}$ such that $v_\ms{Q}(\vec{x}, \vec{y}^*) > v_\ms{Q}(\vec{x}^*, \vec{y}^*)$ and $\vec{x} R_\ms{Q} (\vec{y}^*)^\transp > \vec{x}^* R_\ms{Q} (\vec{y}^*)^\transp$.
+        Observe that
+        \begin{equation}  \label{temp:incompetent-game-equilibrium-1}
+        \begin{split}
+            v(\vec{x}^* Q_1, \vec{y}^* Q_2)
+                & = \vec{x}^* Q_1 R Q_2^\transp (\vec{y}^*)^\transp
+                = \vec{x}^* R_\ms{Q} (\vec{y}^*)^\transp \\
+                & < \vec{x} R_\ms{Q} (\vec{y}^*)^\transp
+                = \vec{x} Q_1 R Q_2^\transp (\vec{y}^*)^\transp
+                = v(\vec{x} Q_1, \vec{y}^* Q_2).
+        \end{split}
+        \end{equation}
+        This contradicts the equilibrium inequalities for $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ in $G$ and, as a consequence, we must have $v_\ms{Q}(\vec{x}, \vec{y}^*) \le v_\ms{Q}(\vec{x}^*, \vec{y}^*)$ for all $\vec{x} \in \vec{X}$.
+        Second, assuming that Player 2 possesses a strategy $\vec{y} \in \vec{Y}$ such that $v_\ms{Q}(\vec{x}^*, \vec{y}) < v_\ms{Q}(\vec{x}^*, \vec{y}^*)$ and $\vec{x}^* R_\ms{Q}  \vec{y}^\transp < \vec{x}^* R_\ms{Q} (\vec{y}^*)^\transp$, we obtain
+        \begin{equation} \label{temp:incompetent-game-equilibrium-2}
+        \begin{split}
+            v(\vec{x}^* Q_1, \vec{y}^* Q_2)
+                & = \vec{x}^* Q_1 R Q_2^\transp (\vec{y}^*)^\transp
+                = \vec{x}^* R_\ms{Q} (\vec{y}^*)^\transp \\
+                & > \vec{x}^* R_\ms{Q} \vec{y}^\transp
+                = \vec{x}^* Q_1 R Q_2^\transp \vec{y}^\transp
+                = v(\vec{x}^* Q_1, \vec{y}, Q_2).
+        \end{split}
+        \end{equation}
+        Again, this contradicts the equilibrium inequalities for $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ in $G$ and allows us to conclude that $v_\ms{Q}(\vec{x}^*, \vec{y}) \ge v_\ms{Q}(\vec{x}^*, \vec{y}^*)$ for all $\vec{y} \in \vec{Y}$.
+        Therefore, having established the necessary inequalities, we see that $(\vec{x}^*, \vec{y}^*)$ is an equilibrium of the incompetent game $G_\ms{Q}$.
+        It is straightforward to show that $\val(G) = \val(G_\ms{Q})$ by writing
+        \begin{equation} \label{temp:incompetent-game-equilibrium-3}
+            \val(G)
+                = v(\vec{x}^* Q_1, \vec{y}^* Q_2)
+                = \vec{x}^* Q_1 R Q_2^\transp (\vec{y}^*)^\transp
+                = \vec{x}^* R_\ms{Q} (\vec{y}^*)^\transp
+                = v_\ms{Q}(\vec{x}^*, \vec{y}^*)
+                = \val(G_\ms{Q}),
+        \end{equation}
+        as required.
+    \end{proof}
+
+    A more interesting problem is encountered when answering the ``forward'' direction of our previous question; that is, when finding the conditions under which an equilibrium $(\vec{x}^*, \vec{y}^*)$ of $G_\ms{Q}$ executes an equilibrium $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ of $G$.
+    We may be unable to write every strategy profile $(\vec{x}, \vec{y}) \in \vec{X} \times \vec{Y}$ in the form $(\vec{x}' Q_1, \vec{y}' Q_2)$ for some $\vec{x}' \in \vec{X}$ and $\vec{y}' \in \vec{Y}$.
+    This means that the constituent strategies of $(\vec{x}, \vec{y})$ cannot be executed, with either $\vec{x} \notin \vec{E}_1$ or $\vec{y} \notin \vec{E}_2$.
+    Accordingly, whenever $\vec{E}_1 \subset \vec{X}$ or $\vec{E}_2 \subset \vec{Y}$ hold as strict inclusions, the equilibrium inequalities for $(\vec{x}^*, \vec{y}^*)$ in $G_\ms{Q}$ do not disprove the existence of a unilateral deviation from $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ in $G$.
+
+    Consider, for instance, a simple $2 \times 2$ matrix game $G$ called ``Matching Pennies'', which has the utility matrix
+    \[
+        R
+            =
+            \begin{pmatrix*}[r]
+                1 & -1 \\
+                -1 & 1
+            \end{pmatrix*}.
+    \]
+    The players, who are each given their own penny, must simultaneously place these pennies to show either heads or tails.
+    Player 1 is declared the winner if the face-up sides match and Player 2 is declared the winner if the face-up sides do not match.
+    The game value of $G$ is $\val(G) = 0$ and its unique equilibrium $(\vec{x}^\sdagger, \vec{y}^\sdagger)$ has $\vec{x}^\sdagger = (\nicefrac{1}{2}, \nicefrac{1}{2})$ and $\vec{y}^\sdagger = (\nicefrac{1}{2}, \nicefrac{1}{2})$.
+    So, optimal play involves both players mixing uniformly at random between heads or tails.
+    Suppose Player 1 and Player 2 are assigned the incompetence matrices
+    \[
+        Q_1
+            =
+            \begin{pmatrix}
+                \nicefrac{1}{3} & \nicefrac{2}{3} \\
+                \nicefrac{1}{4} & \nicefrac{3}{4} \\
+            \end{pmatrix}
+        \quad\text{and}\quad
+        Q_2
+            =
+            \begin{pmatrix}
+                \nicefrac{3}{4} & \nicefrac{1}{4} \\
+                \nicefrac{2}{3} & \nicefrac{1}{3} \\
+            \end{pmatrix},
+    \]
+    respectively.
+    The resulting incompetent game $G_\ms{Q}$ is represented by the utility matrix
+    \[
+        R_\ms{Q}
+            = Q_1 R Q_2^\transp
+            =
+            \begin{pmatrix}
+                \nicefrac{-1}{6} & \nicefrac{-1}{9} \\
+                \nicefrac{-1}{4} & \nicefrac{-1}{6} \\
+            \end{pmatrix}
+    \]
+    and has a unique equilibrium solution $(\vec{x}^*, \vec{y}^*)$ with $\vec{x}^* = (1, 0)$ and $\vec{y}^* = (1, 0)$.
+    Clearly, under these incompetence matrices, optimal play requires that both players attempt to place their pennies showing heads.
+    This implies that the strategies $\vec{x}^* Q_1 = (\nicefrac{1}{3}, \nicefrac{2}{3})$ and $\vec{y}^* Q_2 = (\nicefrac{3}{4}, \nicefrac{1}{4})$ do not form an equilibrium in $G$.
+    Additionally, since
+    \[
+        \vec{x}^\sdagger Q_1^{-1}
+            = (3, -2)
+            \notin \vec{X}
+        \quad\text{and}\quad
+        \vec{y}^\sdagger Q_2^{-1}
+            = (-2, 3)
+            \notin \vec{Y},
+    \]
+    the unique optimal strategy $\vec{x}^\sdagger$ in $G$ belonging to Player 1 is not executable under $Q_1$ and the unique optimal strategy $\vec{y}^\sdagger$ in $G$ belonging to Player 2 is not executable under $Q_2$.
+
+    Shortly, we will provide a sufficient condition under which an equilibrium of $G_\ms{Q}$ executes an equilibrium of $G$.
+    Specifically, \autoref{thm:competent-game-equilibrium} states that, given a completely mixed  incompetent game $G_\ms{Q}$, every equilibrium $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ of $G_\ms{Q}$ produces an equilibrium $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ of $G$.\footnote{Implicitly,
+        in the assumption that $G_\ms{Q}$ is completely mixed, we are insisting that both players possess the same number of actions, or $m_1 = m_2$ (see \parencite[Theorem 3]{Kaplansky1945}).
+    }
+    Although this result is similar to both \parencite[Theorem 3.3]{Beck2013} and \parencite[Lemma 4.2]{Beck2007}, it differs in that it describes not only the game value under optimal play but also the strategies capable of achieving optimality.
+
+    \begin{lemma}  \label{lem:non-singular-incompetence-matrices}
+        If $G_\ms{Q}$ is completely mixed, then $Q_1$ and $Q_2$ are non-singular.
+    \end{lemma}
+
+    \begin{proof}
+        Here, to argue by contraposition, consider an arbitrary incompetent game $G_\ms{Q}$.
+        Additionally, we will assume that Player 1's incompetence matrix $Q_1$ is singular such that, for some distinct indices $I \subseteq \{1, 2, \ldots, m_1\}$, the row vectors $\{q_1(i) : i \in I\}$ are linearly dependent.
+        So, there exists non-zero coefficients $\{\theta_i \in \RR : i \in I\}$ satisfying
+        \begin{equation} \label{temp:non-singular-incompetence-matrices-1}
+            \sum_{i \in I} \theta_i \vec{q}_1(i)
+                = 0.
+        \end{equation}
+        Let $I^+ = \{i \in I : \theta_i > 0\}$ denote the set of indices corresponding to positive coefficients and $I^- = \{i \in I : \theta_i < 0\}$ denote the set of indices corresponding to negative coefficients.
+        Note that, since the rows of $Q_1$ are stochastic vectors, both positive and negative coefficients must be present, or $I^+ \neq \varnothing$ and $I^- \neq \varnothing$.
+        We obtain
+        \begin{equation}  \label{temp:non-singular-incompetence-matrices-2}
+            \sum_{i \in I^+} \theta_i \vec{q}_1(i)
+                = - \sum_{i \in I^-} \theta_i \vec{q}_1(i).
+        \end{equation}
+        after rearranging the equality in \eqref{temp:non-singular-incompetence-matrices-1}.
+        Next, to identify a relationship between the coefficients, observe that
+        \begin{equation} \label{temp:non-singular-incompetence-matrices-3}
+            \left( \sum_{i \in I^+} \theta_i \vec{q}_1(i) \right) \vec{1}^\transp
+                = - \left( \sum_{i \in I^-} \theta_i \vec{q}_1(i) \right) \vec{1}^\transp
+            \quad\text{implies}\quad
+            \sum_{i \in I^+} \theta_i
+                = - \sum_{i \in I^-} \theta_i
+        \end{equation}
+        where $\vec{1}^\transp \in \RR^{1 \times m_1}$ is the $1 \times m_1$ all-ones row vector.
+        Of course, we can rescale these coefficients to ensure that both the left-hand side and right-hand side of \eqref{temp:non-singular-incompetence-matrices-3} sum to unity.
+        This allows us to interpret the vectors $(\theta_i : i \in I^+)$ and $(-\theta_i : i \in I^-)$ as probability distributions over the sets of actions $\{a_i : i \in I^+\}$ and $\{a_i : i \in I^-\}$, respectively.
+
+        Let $(\vec{x}^*, \vec{y}^*)$ be an equilibrium of the incompetent game $G_\ms{Q}$.
+        Moreover, define a constant $\alpha \in \RR^+$ such that $x^*_i + \alpha \theta_i \ge 0$ for all $i \in I^-$ and $x^*_{i'} + \alpha \theta_{i'} = 0$ for some $i' \in I^-$.
+        A suitable choice for this constant is
+        \begin{equation} \label{temp:non-singular-incompetence-matrices-4}
+            \alpha
+                = \max_{i \in I^-} \left(-\frac{x_i^*}{\theta_i}\right).
+        \end{equation}
+        We can construct an alternative strategy $\vec{x}^\sdagger \in \vec{X}$, which is not completely mixed, where
+        \begin{equation} \label{temp:non-singular-incompetence-matrices-5}
+            x^\sdagger_i
+                =
+                \begin{cases}
+                    x^*_i + \alpha \theta_i, & i \in I, \\
+                    x^*_i, & i \notin I, \\
+                \end{cases}
+        \end{equation}
+        for all $i = 1, 2, \ldots, m_1$.
+        Certainly, this is a stochastic vector because
+        \begin{equation}
+            \sum_{i = 1}^{m_1} x^\sdagger_i
+                = \sum_{i \not\in I} x^*_i + \sum_{i \in I} (x^*_i + \alpha \theta_i)
+                = \sum_{i = 1}^{m_1} x^*_i + \alpha \sum_{i \in I} \theta_i
+                = \sum_{i = 1}^{m_1} x^*_i
+                = 1
+        \end{equation}
+        and $x^\sdagger_i \ge 0$ for every $i = 1, 2, \ldots, m_1$.
+        Finally, to prove that $\vec{x}^\sdagger$ is an optimal strategy for Player 1 in $G_\ms{Q}$, it suffices to show that $\vec{x}^*$ and $\vec{x}^\sdagger$ deliver equal expected utility regardless of Player 2's selected strategy.
+        Fix an arbitrary strategy $\vec{y} \in \vec{Y}$ and write
+        \begin{equation}
+        \begin{split}
+            v_\ms{Q}(\vec{x}^\sdagger, \vec{y})
+                & = \vec{x}^\sdagger R_\ms{Q} \vec{y}^\transp
+                = \vec{x}^\sdagger Q_1 R Q_2^\transp \vec{y}^\transp \\
+                & = \sum_{i = 1}^{m_1} x^\sdagger_i \vec{q}_1(i) R Q_2^\transp \vec{y}^\transp
+                = \left(\sum_{i \not\in I} x^*_i \vec{q}_1(i) + \sum_{i \in I} (x^*_i + \alpha \theta_i) \vec{q}_1(i) \right) R Q_2^\transp \vec{y}^\transp \\
+                & = \left(\sum_{i = 1}^{m_1} x^*_i \vec{q}_1(i)\right) R Q_2^\transp \vec{y}^\transp + \alpha \left(\sum_{i \in I}  \theta_i \vec{q}_1(i)\right) R Q_2^\transp \vec{y}^\transp \\
+                & = \vec{x}^* Q_1 R Q_2^\transp \vec{y}^\transp
+                = \vec{x}^* R_\ms{Q} \vec{y}^\transp
+                = v_\ms{Q}(\vec{x}^*, \vec{y}).
+        \end{split}
+        \end{equation}
+        Hence, from an expected utility perspective, the strategies $\vec{x}^*$ and $\vec{x}^\sdagger$ behave identically.
+        This shows that $\vec{x}^\sdagger$ is an optimal strategy for Player 1 in $G_\ms{Q}$ and, as a result, the incompetent game $G_\ms{Q}$ is not completely mixed.
+
+        We can conclude that, whenever $G_\ms{Q}$ is completely mixed, Player 1's incompetence matrix $Q_1$ is non-singular.
+        Similarly, by an analagous argument, Player 2's incompetence matrix $Q_2$ will also be non-singular.
+    \end{proof}
+
+    Note that, because $Q_1$ and $Q_2$ are non-singular whenever $G_\ms{Q}$ is completely mixed, the set of Player 1's executable strategies $\vec{E}_1$ is $m_1$-dimensional and the set of Player 2's executable strategies $\vec{E}_2$ is $m_2$-dimensional.
+    Furthermore, the row vectors $\{\vec{q}_1(i) : 1, 2, \ldots, m_1\}$ are extreme points of $\vec{E}_1$ and the row vectors $\{\vec{q}_2(j) : j = 1, 2, \ldots, m_2\}$ are extreme points of $Q_2$.
+    Why?
+    Certainly, if a row could be expressed as a convex combination of other rows, then these rows would be linearly dependent and the associated incompetence matrix would be singular.
+
+    \begin{theorem} \label{thm:competent-game-equilibrium}
+        Consider an equilibrium $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ of a completely mixed incompetent game $G_\ms{Q}$.
+        The strategy profile $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ is an equilibrium of the competent game $G$ and $\val(G_\ms{Q}) = \val(G)$.
+    \end{theorem}
+
+    \begin{proof}
+        We will apply the indifference principle to the equilibrium $(\vec{x}^*, \vec{y}^*)$ of $G_\ms{Q}$.
+        This states that Player 1's actions award equal expected utility $\gamma_1$ when Player 2 chooses $\vec{y}^*$ and Player 2's actions award equal expected utility $\gamma_2$ when Player 1 chooses $\vec{x}^*$.
+        Mathematically, this is expressed in the equalities
+        \begin{equation} \label{temp:competent-game-equilibrium-1}
+            R_\ms{Q} (\vec{y}^*)^\transp
+                = Q_1 R Q_2^\transp (\vec{y}^*)^\transp
+                = \gamma_1 \vec{1}_{m_1}^\transp
+            \quad\text{and}\quad
+            \vec{x}^* R_\ms{Q}
+                = \vec{x}^* Q_1 R Q_2^\transp
+                = \gamma_2 \vec{1}_{m_2}
+        \end{equation}
+        where $\gamma_1 = -\gamma_2 = \val(G)$ and $\vec{1}_{m_1} \in \RR^{1 \times m_1}$ and $\vec{1}_{m_2} \in \RR^{1 \times m_2}$ are all-ones row vectors.
+        Given that $Q_1$ and $Q_2$ are stochastic matrices, setting $R Q_2^\transp (\vec{y}^*)^\transp = \gamma_1 \vec{1}_{m_1}$ and $\vec{x}^* Q_1 R = \gamma_2 \vec{1}_{m_2}$ gives
+        \begin{equation} \label{temp:competent-game-equilibrium-2}
+            Q_1 R Q_2^\transp (\vec{y}^*)^\transp
+                = \gamma_1 Q_1 \vec{1}_{m_1}^\transp
+                = \gamma_1 \vec{1}_{m_1}^\transp
+            \quad\text{and}\quad
+            \vec{x}^* Q_1 R Q_2^\transp
+                = \gamma_2 (Q_2 \vec{1}_{m_2}^\transp)^\transp
+                = \gamma_2 \vec{1}_{m_2}.
+        \end{equation}
+        The uniqueness of these solutions is guaranteed by our finding in \autoref{lem:non-singular-incompetence-matrices} that $Q_1$ and $Q_2$ are non-singular.
+        Thus, we must have $R Q_2^\transp (\vec{y}^*)^\transp = \gamma_1 \vec{1}_{m_1}^\transp$ and $\vec{x}^* Q_1 R = \gamma_2 \vec{1}_{m_2}$.
+        We interpret these equalities as saying that, in the competent game $G$, Player 1 is indifferent between their actions when Player 2 selects $\vec{y}^* Q_2$ and Player 2 is indifferent between their actions when Player 1 selects $\vec{x}^* Q_1$.
+        Evidently, by way of the indifference principle, this proves that $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ is an equilibrium of $G$ and
+        \begin{equation} \label{eq:temp:competent-game-equilibrium-3}
+            \val(G)
+                = v(\vec{x}^* Q_1, \vec{y}^* Q_2)
+                = \vec{x}^* Q_1 R Q_2^\transp (\vec{y}^*)^\transp
+                = \vec{x}^* R_\ms{Q} (\vec{y}^*)^\transp
+                = v_\ms{Q}(\vec{x}^*, \vec{y}^*)
+                = \val(G_\ms{Q}),
+        \end{equation}
+        as desired.
+    \end{proof}
+
+    Briefly, shifting to the context of a parameterised incompetent game $G_\ms{Q(\funcdot)}$ with learning trajectories $Q_1 : [0, 1] \to \RR^{m_1 \times m_1}$ and $Q_2 : [0, 1] \to \RR^{m_2 \times m_2}$, define the set
+    \begin{equation} \label{eq:completely-mixed-parameters}
+        \scrC
+            =
+            \left\{
+                (\lambda, \mu) \in [0, 1] \times [0, 1]
+                : G_{\lambda, \mu} \text{ is completely mixed}
+            \right\}
+    \end{equation}
+    of learning parameter pairs.
+    \autoref{thm:competent-game-equilibrium} tells us that the game value of $G_\ms{Q(\funcdot)}$ is constant on $\scrC$; that is, we have $\val(G_{\lambda, \mu}) = \val(G)$ for all $(\lambda, \mu) \in \scrC$.
+    Our immediate task is to prove that, when $\scrC$ is non-empty, it constitutes the unions of rectangular plateaus present in \autoref{fig:parameterised-incompetent-games}.
+    Below, the rectangular structure is established in \autoref{prop:completely-mixed-interchangability} and the plateauing behaviour is established in \autoref{prop:completely-mixed-open}.
+
+    \begin{lemma}  \label{lem:completely-mixed-competent-game}
+        If $G_\ms{Q}$ is completely mixed, then $G$ is also completely mixed.
+    \end{lemma}
+
+    \begin{proof}
+        We know that the completely mixed game $G_\ms{Q}$ has a unique equilibrium $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ (see \parencite[Theorem 2]{Kaplansky1945}).
+        Assume that, in pursuit of a contradiction, the corresponding competent game $G$ possesses an equilibrium $(\vec{x}^\sdagger, \vec{y}^\sdagger) \in \vec{X} \times \vec{Y}$ that is not completely mixed.
+
+        First, having shown that the rows of $Q_1$ and $Q_2$ are linearly independent in \autoref{lem:non-singular-incompetence-matrices}, the executed strategies $\vec{x}^* Q_1 \in \vec{E}_1$  and $\vec{y}^* Q_2 \in \vec{E}_2$ are strictly positive convex combinations of the extreme points $\{\vec{q}_1(i) : i = 1, 2, \ldots, m_1\}$ and $\{\vec{q}_2(j) : j = 1, 2, \ldots, m_2\}$, respectively.
+        Therefore, the interior of $\vec{E}_1$ includes $\vec{x}^* Q_1$ (or $\vec{x}^* Q_1 \in \Int \vec{E}_1)$ and the interior of $\vec{E}_2$ includes $\vec{y}^* Q_2$ (or $\vec{y}^* Q_2 \in \Int \vec{E}_2$) by \parencite[Corollary 4.19]{Soltan2020}.
+
+        Second, recall that $(\vec{x}^\sdagger, \vec{y}^\sdagger)$ is not a completely mixed strategy profile and, as a consequence, a constituent strategy must lie on the boundary of its associated strategy space: either $\vec{x}^\sdagger \in \Bnd \vec{X}$ or $\vec{y}^\sdagger \in \Bnd \vec{Y}$.
+        Assume, without loss of generality, that $\vec{x}^\sdagger$ is not completely mixed and $\vec{x}^\sdagger \in \Bnd \vec{X}$.
+        Given that the set of executable strategies $\vec{E}_1$ is a subset of the entire strategy space $\vec{X}$, we have $\Int \vec{E}_1 \cap \Bnd \vec{X} = \varnothing$ and $\vec{x}^\sdagger \neq \vec{x}^* Q_1$.
+        A strategy $\vec{x}^{\sdagger \sdagger} \in \vec{X}$ exists such that
+        \begin{equation} \label{temp:completely-mixed-competent-game-1}
+            \vec{x}^{\sdagger \sdagger}
+                = \alpha \vec{x}^* Q_1 + (1 - \alpha) \vec{x}^\sdagger
+                \in \Int \vec{E}_1
+        \end{equation}
+        for some $\alpha \in (0, 1)$ (see \parencite[Theorem 3.26]{Soltan2020}).
+        Additionally, given the executability of $\vec{x}^{\sdagger \sdagger} \in \Int \vec{E}_1$, there exists $\vec{x}^{**} \in \vec{X}$ satisfying the equality $\vec{x}^{\sdagger \sdagger} = \vec{x}^{* *} Q_1$.
+        We know that $\vec{x}^{\sdagger \sdagger}$ is an optimal strategy in $G$ (by closure under convex combinations, as in \parencite[Proposition G.5]{Filar1997}) and that $\vec{x}^{**}$ is an optimal strategy in $G_\ms{Q}$ (by \autoref{prop:incompetent-game-equilibrium}).
+        This contradicts the uniqueness of the equilibrium $(\vec{x}^*, \vec{y}^*)$ in $G_\ms{Q}$ because the distinct strategies $\vec{x}^*$ and $\vec{x}^{**}$ are both supposedly optimal for Player 1.
+
+        Finally, after applying an analagaous argument when $\vec{y}^\sdagger \in \Bnd \vec{Y}$, we find that $G$ is always completely mixed whenever $G_\ms{Q}$ is completely mixed.
+    \end{proof}
+
+    \begin{proposition} \label{prop:completely-mixed-interchangability}
+        Suppose that, for some incompetence matrices $Q_1, T_1 \in \RR^{m_1 \times m_1}$ and $Q_2, T_2 \in \RR^{m_2 \times m_2}$, the incompetent games $G_\ms{Q_1, Q_2}$ and $G_\ms{T_1, T_2}$ are completely mixed.
+        Then, $G_{\ms{Q_1, T_2}}$ and $G_{\ms{T_1, Q_2}}$ are also completely mixed.
+    \end{proposition}
+
+    \begin{proof}
+        Here, without loss of generality, assume that $G$ has a non-zero game value.\footnote{
+            If $\val(G) = 0$, then we can simply shift its utility matrix $R$ by a non-zero constant, as in \parencite[Theorem 5.35]{Maschler2013}.
+            This produces a strategically equivalent game $G'$ with $\val(G') \neq 0$.
+            The sets of equilibria in $G$ and $G'$ are identical.
+        }
+        Consider a pair of equilibria $(\vec{x}^*, \vec{y}^*), (\vec{x}^\sdagger, \vec{y}^\sdagger) \in \vec{X} \times \vec{Y}$ belonging to the incompetent games $G_\ms{Q_1, Q_2}$ and $G_\ms{T_1, T_2}$, respectively.
+        \autoref{thm:competent-game-equilibrium} tells us that the executed strategies $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ and $(\vec{x}^\sdagger T_1, \vec{y}^\sdagger T_2)$ are equilibria of $G$.
+        Thus, $(\vec{x}^* Q_1, \vec{y}^\sdagger T_2)$ is also an equilibrium of $G$ and, after applying \autoref{prop:incompetent-game-equilibrium}, we find that $(\vec{x}^*, \vec{y}^\sdagger)$ is an equilibrium of $G_\ms{Q_1, T_2}$.
+        We want to prove the uniqueness of this equilibrium.
+
+        Note that the incompetence matrices $Q_1$ and $T_2$ are non-singular (by \autoref{lem:non-singular-incompetence-matrices}) and the utility matrix $R$ is non-singular (by \autoref{lem:completely-mixed-competent-game} and \parencite{Kaplansky1945}).
+        Fix an arbitrary equilibrium $(\vec{x}^\sdiamond, \vec{y}^\sdiamond) \in \vec{X} \times \vec{Y}$ of $G_\ms{Q_1, T_2}$.
+        Kaplansky \parencite[Theorem 1]{Kaplansky1945} states that, because both players possess completely mixed optimal strategies, we have
+        \begin{equation} \label{temp:completely-mixed-interchangability-1}
+            R_\ms{Q_1, T_2} (\vec{y}^\sdiamond)^\transp
+                = Q_1 R T_2^\transp (\vec{y}^\sdiamond)^\transp
+                = \gamma_1 \vec{1}_{m_1}^\transp
+            \quad\text{and}\quad
+            \vec{x}^\sdiamond R_\ms{Q_1, T_2}
+                = \vec{x}^\sdiamond Q_1 R T_2^\transp
+                = \gamma_2 \vec{1}_{m_2}
+        \end{equation}
+        where $\vec{1}_{m_1} \in \RR^{1 \times m_1}$ and $\vec{1}_{m_2} \in \RR^{1 \times m_2}$ are all-ones row vectors and $\gamma_1 = -\gamma_2 = \val(G)$.
+        We can appeal to the invertability of $Q_1$, $R$, and $Q_2$ to show that the equalities in \eqref{temp:completely-mixed-interchangability-1} are uniquely solved by
+        \begin{equation}
+            (\vec{y}^\sdiamond)^\transp
+                = \gamma_1 (Q_1 R T_2^\transp)^\inv \vec{1}_{m_1}^\transp 
+            \quad\text{and}\quad
+            \vec{x}^\sdiamond
+                = \gamma_2 \vec{1}_{m_2} (Q_1 R T_2^\transp)^\inv.
+        \end{equation}
+        So, we must have $\vec{x}^\sdiamond = \vec{x}^*$ and $\vec{y}^\sdiamond = \vec{y}^\sdagger$.
+        This proves that the incompetent game $G_\ms{Q_1, T_2}$ has a unique, completely mixed equilibrium $(\vec{x}^*, \vec{y}^\sdagger)$ and, as a result, it is a completely mixed game.
+    \end{proof}
+
+    Recall that the set $\scrC$ contains every pair of learning parameters $(\lambda, \mu) \in [0, 1] \times [0, 1]$ making $G_{\lambda, \mu}$ completely mixed.
+    \autoref{prop:completely-mixed-interchangability} tells us that the constituent parameters of these pairs are interchangeable; that is, given any $(\lambda, \mu), (\lambda', \mu') \in \scrC$, we know that $(\lambda, \mu') \in \scrC$ and $(\lambda', \mu) \in \scrC$.
+    It is convenient to define the set
+    \begin{equation} \label{eq:completely-mixed-parameters-1}
+        \scrC_1
+            =
+            \left\{
+                \lambda \in [0, 1]
+                : (\lambda, \mu) \in \scrC \text{ for some } \mu \in [0, 1]
+            \right\}
+    \end{equation}
+    belonging to Player 1 and the set
+    \begin{equation} \label{eq:completely-mixed-parameters-2}
+        \scrC_2
+            =
+            \left\{
+                \mu \in [0, 1]
+                : (\lambda, \mu) \in \scrC \text{ for some } \lambda \in [0, 1]
+            \right\}
+    \end{equation}
+    belonging to Player 2.
+    The interchangeability property immediately implies that  $\scrC = \scrC_1 \times \scrC_2$.
+    Now, having explored the rectangular structure of $\scrC$, we investigate its plateauing behaviour in \autoref{prop:completely-mixed-open}.
+
+    \begin{proposition} \label{prop:completely-mixed-open}
+        If $Q_1 : [0, 1] \to \RR^{m_1 \times m_1}$ and $Q_2 : [0, 1] \to \RR^{m_2 \times m_2}$ are continuous, then the set $\scrC$ is open in $[0, 1] \times [0, 1]$.
+    \end{proposition}
+
+    \begin{proof}
+        Jansen \parencite[Theorem 3.15]{Jansen1981} proves that the set of $m_1 \times m_2$ utility matrix pairs associated with completely mixed bimatrix games is open in $\RR^{m_1 \times m_2} \times \RR^{m_1 \times m_2}$.
+        This, in turn, implies that the set of $m_1 \times m_2$ utility matrices belonging to completely mixed matrix games is open in $\RR^{m_1 \times m_2}$.
+        Indeed, if a matrix $R \in \RR^{m_1 \times m_2}$ exists such that the ball $\ball{\epsilon}{R}$ in $\RR^{m_1 \times m_2}$ does not exclusively contain completely mixed utility matrices for all $\epsilon \in \RR^+$, then the ball $\ball{\epsilon}{R, -R}$ in $\RR^{m_1 \times m_2} \times \RR^{m_1 \times m_2}$ would serve as a counterexample to \parencite[Theorem 3.15]{Jansen1981}.
+
+        Fix a pair of learning parameters $(\lambda, \mu) \in \scrC$.
+        Evidently, for some $\epsilon \in \RR^+$, every matrix game represented by a utility matrix in $\ball{\epsilon}{R_{\lambda, \mu}}$ is completely mixed.
+        The continuity of $Q_1(\funcdot)$ and $Q_2(\funcdot)$ guarantees that the mapping from $[0, 1] \times [0, 1]$ to $\RR^{m_1 \times m_2}$ given by $(\lambda', \mu') \mapsto R_{\lambda', \mu'}$ is continuous on its entire domain.
+        Therefore, there exists $\delta \in \RR^+$ such that, for all $(\lambda', \mu') \in \ball{\delta}{\lambda, \mu} \cap ([0, 1] \times [0, 1])$, we have
+        \begin{equation} \label{temp:completely-mixed-open-1}
+            R_{\lambda', \mu'}
+                = Q_1(\lambda') R Q_2(\mu')^\transp
+                \in \ball{\epsilon}{R_{\lambda, \mu}}
+        \end{equation}
+        and $G_{\lambda', \mu'}$ is completely mixed.
+        This allows us to conclude that $\scrC$ is open in the space $[0, 1] \times [0, 1]$ of learning parameter pairs, as required.
+    \end{proof}
+
+    Finally, through \autoref{prop:completely-mixed-interchangability} and \autoref{prop:completely-mixed-open}, we have found that, whenever $G_{\lambda, \mu}$ is completely mixed for some $\lambda, \mu \in [0, 1]$, the game value of $G_\ms{Q(\funcdot)}$ forms a rectangular plateau around $(\lambda, \mu)$.
+    This provides an explanation for the plateaus present in \autoref{fig:parameterised-incompetent-games}; however, it is not a necessary condition for the appearance of plateaus.
+
+\section{Optimal Learning Parameters}  \label{sec:optimal-learning-parameters}
+    The concept of an executable strategy can also be leveraged to describe a player's optimal learning parameter choices under certain conditions.
+    Let $G_\ms{Q(\funcdot)}$ be a parameterised incompetent game in which Player 1 uses the learning trajectory $Q_1 : [0, 1] \to \RR^{m_1 \times m_1}$ and Player 2 uses the learning trajectory $Q_2 : [0, 1] \to \RR^{m_2 \times m_2}$.
+    We will allow both players to freely choose their learning parameters before playing the associated incompetent game.
+    This is modelled as a multi-stage game $\Gamma$ where
+    \begin{enumerate}[
+        leftmargin=*,
+        align=left,
+        label=\textbf{Stage \arabic*.}
+    ]
+        \item (\textit{Learning Parameter Selection})
+            Player 1 selects a learning parameter $\lambda \in [0, 1]$ and Player 2 selects a learning parameter $\mu \in [0, 1]$,
+
+        \item (\textit{Action Selection})
+            Player 1 selects an action $a_i \in A$ and Player 2 selects an action $b_j \in B$ for some $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$,
+        
+        \item[\textbf{Utility.}]
+            Player 1 expects to receive utility $u_{\lambda, \mu}(i, j)$ and Player 2 expects to receive utility $-u_{\lambda, \mu}(i, j)$.
+    \end{enumerate}
+    The players are limited to their pure strategies in Stage 1 (where the action spaces are continuous) and their mixed strategies in Stage 2 (where the action spaces are discrete).
+    We are exclusively interested in the subgame perfect equilibria of $\Gamma$, which require the players to select optimal strategies in $G_{\lambda, \mu}$ during Stage 2.
+    Consequently, we are justified in treating $\Gamma$ as a game wherein, after the players choose learning parameters $\lambda, \mu \in [0, 1]$, they play $G_{\lambda, \mu}$ optimally to achieve expected utilities $\val(G_{\lambda, \mu})$ and $-\val(G_{\lambda, \mu})$ for Player 1 and Player 2, respectively.
+
+    The remaining problem is to identify optimal learning parameter choices in Stage 1.
+    Thus, we seek learning parameters $\lambda^*, \mu^* \in [0, 1]$ satisfying the usual zero-sum equilibrium inequalities
+    \begin{equation} \label{eq:multistage-equilibrium-inequalities}
+        \val\big(G_{\lambda, \mu^*}\big)
+            \le \val\big(G_{\lambda^*, \mu^*}\big)
+            \le \val\big(G_{\lambda^*, \mu}\big)
+    \end{equation}
+    for every $\lambda, \mu \in [0, 1]$.
+    We will investigate the learning parameters that allow the players to execute a competent optimal strategy.
+    Let $\vec{O}_1$ denote Player 1's set of optimal strategies in $G$ and $\vec{O}_2$ denote Player 2's set of optimal strategies in $G$.
+    Then, define the sets of learning parameters
+    \begin{equation}
+        \scrE_1
+            =
+            \left\{
+                \lambda \in [0, 1]
+                : \vec{E}_1(\lambda) \cap \vec{O}_1 \neq \varnothing
+            \right\}
+    \end{equation}
+    and
+    \begin{equation}
+        \scrE_2
+            =
+            \left\{
+                \mu \in [0, 1]
+                : \vec{E}_2(\mu) \cap \vec{O}_2
+                \neq \varnothing
+            \right\}.
+    \end{equation}
+    Notice that the game value of $G_\ms{Q(\funcdot)}$ is constant on the region $\scrE = \scrE_1 \times \scrE_2$ by \autoref{prop:incompetent-game-equilibrium}.
+    Moreover, because \autoref{thm:competent-game-equilibrium} says that the equilibrium of a completely mixed incompetent game executes a competent optimal strategy, we have $\scrC_1 \subseteq \scrE_1$ and $\scrC_2 \subseteq \scrE_2$.
+
+    Next, \autoref{prop:optimal-learning-parameters-sufficient} shows that every pair of learning parameters $(\lambda^*, \mu^*) \in \scrE$ is an equilibrium of the multi-stage game $\Gamma$.
+    This means that a player should, whenever it is possible, choose a learning parameter that allows them to execute a competent optimal strategy.
+
+    \begin{proposition} \label{prop:optimal-learning-parameters-sufficient}
+        If $(\lambda^*, \mu^*) \in \scrE$, then $(\lambda^*, \mu^*)$ is an equilibrium in $\Gamma$.
+    \end{proposition}
+
+    \begin{proof}
+        We know that, for some $\vec{x}^* \in \vec{X}$ and $\vec{y}^* \in \vec{Y}$, the strategy profile $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ is an equilibrium of $G$.
+        We will show that a contradiction arises whenever Player 1 or Player 2 possesses a profitable unilateral deviation from the strategy profile $(\lambda^*, \mu^*)$.
+
+        First, assume that Player 1 has an alternative learning parameter $\lambda \in [0, 1]$ satisfying $\val(G_{\lambda, \mu^*}) > \val(G_{\lambda^*, \mu^*})$.
+        Observe that, given an equilibrium $(\vec{x}^\sdagger, \vec{y}^\sdagger) \in \vec{X} \times \vec{Y}$ of $G_{\lambda^*, \mu}$, we have
+        \begin{equation} \label{temp:optimal-learning-parameters-sufficient-1}
+        \begin{split}
+            v(\vec{x}^* Q_1(\lambda^*), \vec{y}^* Q_2(\mu^*))
+                & = \vec{x}^* Q_1(\lambda^*) R Q_2(\mu^*)^\transp (\vec{y}^*)^\transp
+                = \vec{x}^* R_{\lambda^*, \mu^*} (\vec{y}^*)^\transp \\
+                & = \val\big(G_{\lambda^*, \mu^*}\big)
+                < \val\big(G_{\lambda, \mu^*}\big)
+                = \vec{x}^\sdagger R_{\lambda, \mu^*} (\vec{y}^\sdagger)^\transp
+                \le \vec{x}^\sdagger R_{\lambda, \mu^*} (\vec{y}^*)^\transp \\
+                & = \vec{x}^\sdagger Q_1(\lambda) R Q_2(\mu^*)^\transp (\vec{y}^*)^\transp
+                = v(\vec{x}^\sdagger Q_1(\lambda), \vec{y}^* Q_2(\mu^*)).
+        \end{split}
+        \end{equation}
+        This implies that the strategy $\vec{x}^\sdagger Q_1(\lambda)$ is a profitable deviation from the equilibrium $(\vec{x}^* Q_1, \vec{y}^* Q_2)$ in $G$.
+        Hence, since this violates the equilibrium conditions, Player 1 cannot possess any profitable deviations from $(\lambda^*, \mu^*)$ in $\Gamma$.
+
+        Second, consider a learning parameter $\mu \in [0, 1]$ for Player 2 with $\val(G_{\lambda^*, \mu}) < \val(G_{\lambda^*, \mu^*})$.
+        If $(\vec{x}^\sdagger, \vec{y}^\sdagger) \in \vec{X} \times \vec{Y}$ denotes an equilibrium of $G_{\lambda^*, \mu}$, then
+        \begin{equation} \label{temp:optimal-learning-parameters-sufficient-2}
+        \begin{split}
+            v(\vec{x}^* Q_1(\lambda^*), \vec{y}^* Q_2(\mu^*))
+                & = \vec{x}^* Q_1(\lambda^*) R Q_2(\mu^*)^\transp (\vec{y}^*)^\transp
+                = \vec{x}^* R_{\lambda^*, \mu^*} (\vec{y}^*)^\transp \\
+                & = \val\big(G_{\lambda^*, \mu^*}\big)
+                > \val\big(G_{\lambda^*, \mu}\big)
+                = \vec{x}^\sdagger R_{\lambda^*, \mu} (\vec{y}^\sdagger)^\transp
+                \ge \vec{x}^* R_{\lambda^*, \mu} (\vec{y}^\sdagger)^\transp \\
+                & = \vec{x}^* Q_1(\lambda^*) R Q_2(\mu)^\transp (\vec{y}^\sdagger)^\transp
+                = v(\vec{x}^* Q_1(\lambda^*), \vec{y}^\sdagger Q_2(\mu)).
+        \end{split}
+        \end{equation}
+        Again, this suggests that Player 2 would benefit from switching to the strategy $\vec{y}^\sdagger Q_2(\mu)$ in $G$.
+        This is a contradiction and, as a consequence, Player 2 also does not possess a profitable deviation from $(\lambda^*, \mu^*)$ in $\Gamma$.
+
+        Therefore, after showing that both players do not have any incentive to deviate from $(\lambda^*, \mu^*)$, we conclude that it is an equilibrium of $\Gamma$.
+    \end{proof}
+
+    Although \autoref{prop:optimal-learning-parameters-sufficient} gives a sufficient condition for $(\lambda^*, \mu^*) \in [0, 1] \times [0, 1]$ to be an equilibrium, it does not exclude the possibility of other optimal learning parameters.
+    Instead, to ensure that $\scrE$ contains every equilibrium of $\Gamma$, we can impose the additional restriction that the learning trajectories $Q_1(\funcdot)$ and $Q_2(\funcdot)$ must achieve complete competence on the domain $[0, 1]$.
+    This necessary condition is addressed in \autoref{thm:optimal-learning-parameters-necessary}.
+
+    \begin{theorem} \label{thm:optimal-learning-parameters-necessary}
+        Assume that the learning trajectories $Q_1(\funcdot)$ and $Q_2(\funcdot)$ achieve complete competence on the interval $[0, 1]$, or $Q_1(\lambda^*) = I_{m_1}$ and $Q_2(\mu^*) = I_{m_2}$ for some $\lambda^\sdagger, \mu^\sdagger \in [0, 1]$.
+        If $(\lambda^\sdagger, \mu^\sdagger) \in [0, 1] \times [0, 1]$ is an equilibrium of $\Gamma$, then $(\lambda^\sdagger, \mu^\sdagger) \in \scrE$.
+    \end{theorem}
+
+    \begin{proof}
+        Notice that, because each player's entire strategy space is executable under the identity matrices $Q_1(\lambda^*)$ and $Q_2(\mu^*)$, we must have $\lambda^* \in \scrE_1$ and $\mu^* \in \scrE_2$.
+        Then, \autoref{prop:optimal-learning-parameters-sufficient} tells us that $(\lambda^*, \mu^*)$ is an equilibrium of $\Gamma$ and, by the interchangeability of optimal strategies, $(\lambda^*, \mu^\sdagger)$ and $(\lambda^\sdagger, \mu^*)$ are also equilibria, with
+        \begin{equation}  \label{temp:optimal-learning-parameters-necessary-1}
+            \val(G)
+                = \val\big(G_{\lambda^*, \mu^*}\big)
+                = \val\big(G_{\lambda^*, \mu^\sdagger}\big)
+                = \val\big(G_{\lambda^\sdagger, \mu^*}\big)
+                = \val\big(G_{\lambda^\sdagger, \mu^\sdagger}\big)
+        \end{equation}
+        (see \parencite[Theorem 2.1.2]{Owen2013}).
+    
+        Let the strategy profiles $(\vec{x}^{*}, \vec{y}^*) \in \vec{X} \times \vec{Y}$ and $(\vec{x}^\sdiamond, \vec{y}^\sdiamond) \in \vec{X} \times \vec{Y}$ be equilibria of $G_{\lambda^*, \mu^*}$ and $G_{\lambda^\sdagger, \mu^*}$, respectively.
+        Observe that
+        \begin{equation}  \label{temp:optimal-learning-parameters-necessary-2}
+        \begin{split}
+            v(\vec{x}^\sdiamond Q_1(\lambda^\sdagger), \vec{y}^*)
+                & = \vec{x}^\sdiamond Q_1(\lambda^\sdagger) R (\vec{y}^*)^\transp
+                \le \vec{x}^* R (\vec{y}^*)^\transp
+                = \vec{x}^* Q_1(\lambda^*) R Q_2(\mu^*)^\transp (\vec{y}^*)^\transp \\
+                & = \vec{x}^* R_{\lambda^*, \mu^*} (\vec{y}^*)^\transp
+                = v_{\lambda^*, \mu^*} (\vec{x}^*, \vec{y}^*)
+                = \val\big(G_{\lambda^*, \mu^*}\big)
+                = \val(G)
+        \end{split}
+        \end{equation}
+        and
+        \begin{equation}  \label{temp:optimal-learning-parameters-necessary-3}
+        \begin{split}
+            v(\vec{x}^\sdiamond Q_1(\lambda^\sdagger), \vec{y}^*)
+                & = \vec{x}^\sdiamond Q_1(\lambda^\sdagger) R (\vec{y}^*)^\transp
+                = \vec{x}^\sdiamond Q_1(\lambda^\sdagger) R Q_2(\mu^*)^\transp (\vec{y}^*)^\transp
+                = \vec{x}^\sdiamond R_{\lambda^\sdagger, \mu^*} (\vec{y}^*)^\transp \\
+                & \ge \vec{x}^\sdiamond R_{\lambda^\sdagger, \mu^*} (\vec{y}^\sdiamond)^\transp
+                = v_{\lambda^\sdagger, \mu^*}(\vec{x}^\sdiamond, \vec{y}^\sdiamond)
+                = \val\big(G_{\lambda^\sdagger, \mu^*}\big)
+                = \val(G).
+        \end{split}
+        \end{equation}
+        The inequalities in \eqref{temp:optimal-learning-parameters-necessary-2} and \eqref{temp:optimal-learning-parameters-necessary-3} combine to prove that, in the competent game $G$, the expected utility of the strategy profile $(\vec{x}^\sdiamond Q_1(\lambda^\sdagger), \vec{y}^*)$ is $\val(G)$.
+        Hence, for any $\vec{x} \in \vec{X}$ and $\vec{y} \in \vec{Y}$, we have
+        \begin{equation} \label{temp:optimal-learning-parameters-necessary-4}
+        \begin{split}
+            v(\vec{x}, \vec{y}^*)
+                & = \vec{x} R (\vec{y}^*)^\transp
+                = \vec{x} Q_1(\lambda^*) R Q_2(\mu^*)^\transp (\vec{y}^*)^\transp
+                = \vec{x} R_{\lambda^*, \mu^*} (\vec{y}^*)^\transp \\
+                & \le \vec{x}^* R_{\lambda^*, \mu^*} (\vec{y}^*)^\transp
+                = v_{\lambda^*, \mu^*} (\vec{x}^*, \vec{y}^*)
+                = \val\big(G_{\lambda^*, \mu^*}\big)
+                = v(\vec{x}^\sdiamond Q_1(\lambda^\sdagger), \vec{y}^*)
+        \end{split}
+        \end{equation}
+        and
+        \begin{equation} \label{temp:optimal-learning-parameters-necessary-5}
+        \begin{split}
+            v(\vec{x}^\sdiamond Q_1(\lambda^\sdagger), \vec{y})
+                & = \vec{x}^\sdiamond Q_1(\lambda^\sdagger) R \vec{y}^\transp
+                = \vec{x}^\sdiamond Q_1(\lambda^\sdagger) R Q_2(\mu^*)^\transp \vec{y}^\transp
+                = \vec{x}^\sdiamond R_{\lambda^\sdagger, \mu^*} \vec{y}^\transp \\
+                & \ge \vec{x}^\sdiamond R_{\lambda^\sdagger, \mu^*} (\vec{y}^\sdiamond)^\transp
+                = v_{\lambda^\sdagger, \mu^*}(\vec{x}^\sdiamond, \vec{y}^\sdiamond)
+                = \val\big(G_{\lambda^\sdagger, \mu^*}\big)
+                = v(\vec{x}^\sdiamond Q_1(\lambda^\sdagger), \vec{y}^*)
+        \end{split}
+        \end{equation}
+        Clearly, since \eqref{temp:optimal-learning-parameters-necessary-4} and \eqref{temp:optimal-learning-parameters-necessary-5} are the equilibrium inequalities, Player 1 possesses the optimal strategy $\vec{x}^\sdiamond Q_1(\lambda^\sdagger)$ in $G$ and $\lambda^\sdagger \in \scrE_1$.
+        A similar argument for the incompetent game $G_{\lambda^*, \mu^\sdagger}$ constructs an optimal strategy for Player 2 such that $\mu^\sdagger \in \scrE_2$.
+        So, we obtain $(\lambda^\sdagger, \mu^\sdagger) \in \scrE_1 \times \scrE_2$, as desired.
+    \end{proof}
+
+    \begin{figure}[t]
+        \centering
+        \input{tex/chapter3/figures/incomparable-skill}
+        \caption[Learning Trajectories with Incomparable Skill Levels]{The executable strategy spaces belonging to Player 1 (blue) and Player 2 (red) at incomparable skill levels.}
+        \label{fig:incomparable-skill}
+    \end{figure}
+
+    Lastly, to provide another sufficient condition for identifying optimal learning parameters, note that the mathematical notion of incompetence does not always admit straightforward comparisons of skill.
+    An increase in a player's skill corresponds to an expansion of their executable strategy space without ``forgetting'' any previously executable strategy.
+    Accordingly, we say that Player 1 and Player 2 achieve \emph{greater skill} at $\lambda_2, \mu_2 \in [0, 1]$ than at $\lambda_1, \mu_1 \in [0, 1]$ whenever
+    \begin{equation}  \label{eq:skill-comparison}
+        \vec{E}_1(\lambda_1)
+            \subseteq \vec{E}_1(\lambda_2)
+        \quad\text{and}\quad
+        \vec{E}_2(\mu_1)
+            \subseteq \vec{E}_2(\mu_2),
+    \end{equation}
+    respectively.
+    The binary relation of having greater skill does not necessarily relate every pair of learning parameters.
+    Consider, for example, the learning trajectories $Q_1 : [0, 1] \to \RR^{3 \times 3}$ and $Q_2 : [0, 1] \to \RR^{3 \times 3}$ where
+    \[
+        Q_1(\lambda)
+            =
+            \begin{pmatrix}
+                0 & 1 & 0 \\
+                0 & 0 & 1 \\
+                1 & 0 & 0 \\
+            \end{pmatrix}
+            (1 - \lambda) +
+            \begin{pmatrix}
+                1 & 0 & 0 \\
+                0 & 1 & 0 \\
+                0 & 0 & 1 \\
+            \end{pmatrix}
+            \lambda
+    \]
+    for all $\lambda \in [0, 1]$ and
+    \[
+        Q_2(\mu)
+            =
+            \begin{pmatrix}
+                0 & \nicefrac{1}{2} & \nicefrac{1}{2} \\
+                \nicefrac{1}{2} & 0 & \nicefrac{1}{2} \\
+               \nicefrac{1}{2} & \nicefrac{1}{2} & 0 \\
+            \end{pmatrix}
+            (1 - \mu) +
+            \begin{pmatrix}
+                1 & 0 & 0 \\
+                0 & 1 & 0 \\
+                0 & 0 & 1 \\
+            \end{pmatrix}
+            \mu
+    \]
+    for all $\mu \in [0, 1]$.
+    \autoref{fig:incomparable-skill} shows the executable strategies available to Player 1 at $\lambda = \nicefrac{1}{3}, \nicefrac{2}{3}$ and the executable strategies available to Player 2 at $\mu = 0, \nicefrac{2}{3}$.
+    Player 1's learning parameters are incomparable because $\vec{E}_1(\nicefrac{1}{3}) \not\subseteq \vec{E}_1(\nicefrac{2}{3})$ and $\vec{E}_1(\nicefrac{2}{3}) \not\subseteq \vec{E}_1(\nicefrac{1}{3})$.
+    Similarly, Player 2's learning parameters are incomparable because $\vec{E}_2(0) \not\subseteq \vec{E}_2(\nicefrac{2}{3})$ and $\vec{E}_2(\nicefrac{2}{3}) \not\subseteq \vec{E}_2(0)$.
+    Although the ability to compare a player's skill at different parameters is not guaranteed, \autoref{lem:comparable-skill-inequality} relates the game value of $G_\ms{Q(\funcdot)}$ at those learning parameters satisfying \eqref{eq:skill-comparison}.
+
+    \begin{lemma} \label{lem:comparable-skill-inequality}
+        If $\vec{E}_1(\lambda_1) \subseteq \vec{E}_1(\lambda_2)$ and $\vec{E}_2(\mu_1) \subseteq \vec{E}_2(\mu_2)$ for some $\lambda_1, \lambda_2, \mu_1, \mu_2 \in [0, 1]$, then
+        \begin{equation} \label{eq:comparable-skill-inequality}
+            \val\big(G_{\lambda_1, \mu}\big)
+                \le \val\big(G_{\lambda_2, \mu}\big)
+            \quad\text{and}\quad
+            \val\big(G_{\lambda, \mu_1}\big)
+                \ge \val\big(G_{\lambda, \mu_2}\big)
+        \end{equation}
+        for every $\lambda, \mu \in [0, 1]$.
+    \end{lemma}
+
+    \begin{proof}
+        First, fix $\mu \in [0, 1]$ and suppose $\vec{E}_1(\lambda_1) \subseteq \vec{E}_1(\lambda_2)$ for some $\lambda_1, \lambda_2 \in [0, 1]$.
+        Let $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ and $(\vec{x}^\sdagger, \vec{y}^\sdagger) \in \vec{X} \times \vec{Y}$ be equilibria of $G_{\lambda_1, \mu}$ and $G_{\lambda_2, \mu}$, respectively.
+        Evidently, since $\vec{x}^* Q_1(\lambda_1) \in \vec{E}_1(\lambda_1) \subseteq \vec{E}_1(\lambda_2)$, there exists $\vec{x} \in \vec{X}$ such that $\vec{x} Q_1(\lambda_2) = \vec{x}^* Q_1(\lambda_1)$.
+        Observe that
+        \begin{equation} \label{temp:comparable-skill-inequality-1}
+        \begin{split}
+        \val\big(G_{\lambda_1, \mu}\big)
+            & = \vec{x}^* R_{\lambda_1, \mu} (\vec{y}^*)^\transp
+            \le \vec{x}^* R_{\lambda_1, \mu} (\vec{y}^\sdagger)^\transp
+            = \vec{x}^* Q_1(\lambda_1) R Q_2(\mu)^\transp (\vec{y}^\sdagger)^\transp \\
+            & = \vec{x} Q_1(\lambda_2) R Q_2(\mu)^\transp (\vec{y}^\sdagger)^\transp
+            = \vec{x} R_{\lambda_2, \mu} (\vec{y}^\sdagger)^\transp
+            \le \vec{x}^\sdagger R_{\lambda_2, \mu} (\vec{y}^\sdagger)^\transp
+            = \val\big(G_{\lambda_2, \mu}\big),
+        \end{split}
+        \end{equation}
+        as required.
+
+        Second, fix $\lambda \in [0, 1]$ and suppose $\vec{E}_2(\mu_1) \subseteq \vec{E}_2(\mu_2)$ for some $\mu_1, \mu_2 \in [0, 1]$.
+        Consider an equilibrium $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ of $G_{\lambda, \mu_1}$ and an equilibrium $(\vec{x}^\sdagger, \vec{y}^\sdagger) \in \vec{X} \times \vec{Y}$ of $G_{\lambda, \mu_2}$.
+        Then, $\vec{y}^* Q_2(\mu_1) \in \vec{E}_2(\mu_1) \subseteq \vec{E}_2(\mu_2)$ and $\vec{y} Q_2(\mu_2) = \vec{y}^* Q_2(\mu_1)$ for some $\vec{y} \in \vec{Y}$.
+        Again, we have
+        \begin{equation} \label{temp:comparable-skill-inequality-2}
+        \begin{split}
+            \val\big(G_{\lambda, \mu_1}\big)
+                & = \vec{x}^* R_{\lambda, \mu_1} (\vec{y}^*)^\transp
+                \ge \vec{x}^\sdagger R_{\lambda, \mu_1} (\vec{y}^*)^\transp
+                = \vec{x}^\sdagger Q_1(\lambda) R Q_2(\mu_1)^\transp (\vec{y}^*)^\transp \\
+                & = \vec{x}^\sdagger Q_1(\lambda) R Q_2(\mu_2)^\transp \vec{y}^\transp
+                = \vec{x}^\sdagger R_{\lambda, \mu_2} \vec{y}^\transp
+                \ge \vec{x}^\sdagger R_{\lambda, \mu_2} (\vec{y}^\sdagger)^\transp
+                = \val\big(G_{\lambda, \mu_2}\big),
+        \end{split}
+        \end{equation}
+        which proves the desired conclusion.
+    \end{proof}
+
+    Next, we say that Player 1 achieves \emph{maximum skill} at $\lambda^* \in [0, 1]$ whenever $\vec{E}_1(\lambda) \subseteq \vec{E}_1(\lambda^*)$ for all $\lambda \in [0, 1]$.
+    Analogously, we say that Player 2 achieves \emph{maximum skill} at $\mu^* \in [0, 1]$ whenever $\vec{E}_2(\mu) \subseteq \vec{E}_2(\mu^*)$ for all $\lambda \in [0, 1]$.
+    This definition captures the idea that a maximally skilled player should be able to execute every learnable strategy.
+    \autoref{prop:maximum-skill-optimality} proves that a pair of maximum skill learning parameters is necessarily an equilibrium of $\Gamma$.
+
+    \begin{proposition} \label{prop:maximum-skill-optimality}
+        If Player 1 achieves maximum skill at $\lambda^* \in [0, 1]$ and Player 2 achieves maximum skill at $\mu^* \in [0, 1]$, then $(\lambda^*, \mu^*)$ is an equilibrium of $\Gamma$.
+    \end{proposition}
+
+    \begin{proof}
+        We know that, for all $\lambda, \mu \in [0, 1]$, the spaces of executable strategy spaces satisfy $\vec{E}_1(\lambda) \subseteq \vec{E}_1(\lambda^*)$ and $\vec{E}_2(\mu) \subseteq \vec{E}_2(\mu^*)$.
+        Thus, according to \autoref{lem:comparable-skill-inequality}, we obtain
+        \[
+            \val\big(G_{\lambda, \mu^*}\big)
+                \le \val\big(G_{\lambda^*, \mu^*}\big)
+                \le \val\big(G_{\lambda^*, \mu}\big).
+        \]
+        These are the necessary equilibrium inequalities from \eqref{eq:multistage-equilibrium-inequalities} and, as a result, $(\lambda^*, \mu^*)$ is an equilibrium of $\Gamma$.
+    \end{proof}
+
+    The existence of maximum skill learning parameters depends entirely on the selected learning trajectories; however, a special case occurs when Player 1 and Player 2 are capable of achieving complete competence.
+    This means that $Q_1(\lambda^*) = I_{m_1}$ and $Q_2(\mu^*) = I_{m_2}$ for some $\lambda^*, \mu^* \in [0, 1]$.
+    Clearly, since
+    \[
+        \vec{E}_1(\lambda^*)
+            = \vec{E}_1(I_{m_1})
+            = \vec{X}
+        \quad\text{and}\quad
+        \vec{E}_2(\mu^*)
+            = \vec{E}_2(I_{m_2})
+            = \vec{Y},
+    \]
+    Player 1 achieves maximum skill at $\lambda^*$ and Player 2 achieves maximum skill at $\mu^*$.
+    Therefore, \autoref{prop:maximum-skill-optimality} reduces to the ``optimality of complete competence'' discussed in \parencite[Section 4.4]{Beck2007} and \parencite[Proposition 3.1]{Beck2013}.

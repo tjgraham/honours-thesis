@@ -1,0 +1,69 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Figure: "Rock, Paper, Scissors" in Extensive Form                            %
+% ---------------------------------------------------------------------------- %
+
+
+\begin{istgame}[font=\small]
+    % Grow East
+    \setistgrowdirection'{east}
+
+
+
+    % Player 1
+    \xtdistance{40mm}{22.5mm}
+
+    \istroot(0)<[yshift=15pt]>{Player 1}
+        % Rock
+        \istb{Rock}[above, sloped, yshift=-2pt, font=\scriptsize]
+        
+        % Paper
+        \istb{Paper}[above, yshift=-2pt, font=\scriptsize]
+        
+        % Scissors
+        \istb{Scissors}[above, sloped, yshift=-2pt, font=\scriptsize]
+    \endist
+
+
+
+    % Player 2
+    \xtdistance{40mm}{7.5mm}
+    
+    \istroot(1)(0-1)<[yshift=15pt]>{Player 2}
+        % Rock
+        \istb{Rock}[above, sloped, xshift=5pt, yshift=-2pt, font=\scriptsize]{$(0, 0)$}
+        
+        % Paper
+        \istb{Paper}[above, xshift=7.5pt, yshift=-2pt, font=\scriptsize]{$(-1, 1)$}
+        
+        % Scissors
+        \istb{Scissors}[above, sloped, xshift=10pt, yshift=-2pt, font=\scriptsize]{$(1, -1)$}
+    \endist
+
+    \istroot(2)(0-2){}
+        % Rock
+        \istb{Rock}[above, sloped, xshift=5pt, yshift=-2pt, font=\scriptsize]{$(1, -1)$}
+        
+        % Paper
+        \istb{Paper}[above, xshift=7.5pt, yshift=-2pt, font=\scriptsize]{$(0, 0)$}
+        
+        % Scissors
+        \istb{Scissors}[above, sloped, xshift=10pt, yshift=-2pt, font=\scriptsize]{$(-1, 1)$}
+    \endist
+
+    \istroot(3)(0-3){}
+        % Rock
+        \istb{Rock}[above, sloped, xshift=5pt, yshift=-2pt, font=\scriptsize]{$(-1, 1)$}
+        
+        % Paper
+        \istb{Paper}[above, xshift=7.5pt, yshift=-2pt, font=\scriptsize]{$(1, -1)$}
+        
+        % Scissors
+        \istb{Scissors}[above, sloped, xshift=10pt, yshift=-2pt, font=\scriptsize]{$(0, 0)$}
+    \endist
+
+    % Information Sets
+    \xtInfosetO[fill=color2!25](0)(0) % Player 1
+    \xtInfosetO[fill=color4!25](1)(3) % Player 2
+
+\end{istgame}

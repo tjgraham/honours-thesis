@@ -1,0 +1,519 @@
+% ---------------------------------------------------------------------------- %
+% Honours Thesis                                                               %
+% Chapter 2 - Game Theory                                                      %
+% ---------------------------------------------------------------------------- %
+
+\chapter{Game Theory} \label{chp:game-theory}
+    What is a game?
+    We certainly cannot promise a single mathematical model that captures the entire diversity of real-world strategic interactions.
+    Instead, games can be broadly described as ``situations involving several decision makers with different goals, in which the decision of each affects the outcome for all the decision makers'' \parencite{Maschler2013}.
+    Adopting the terminology of traditional games, these decision makers are called \emph{players} and their available choices are called \emph{actions}.
+    It is assumed that players select actions with the intention of maximising the outcome-dependent reward or \emph{utility} they receive.\footnote{Although
+        a complete discussion of utility theory is beyond the scope of this brief introduction, the development of utility functions from player preferences is explained in \parencite[Chapter 2]{Maschler2013}.
+        Here, utility can simply be viewed as an abstract quantity resembling a monetary incentive.
+    }
+
+    After a game-theoretic model has been formulated, we seek to solve it by finding player strategies that satisfy a \emph{solution concept}, which captures salient properties of rational behaviour.
+    Accordingly, this chapter reviews several well-established models and solution concepts that are encountered throughout our exploration of incompetence and learning.
+    \autoref{sec:game-representations-and-strategies} and \autoref{sec:matrix-games-and-bimatrix-games} explain introductory game theory (from \parencite{Maschler2013}, \parencite{Osborne1994}, and \parencite{Owen2013}) and \autoref{sec:incompetent-games} explains incompetent matrix games (from \parencite{Beck2013} and \parencite{Beck2007}).
+
+
+
+\section{Game Representations and Strategies} \label{sec:game-representations-and-strategies}
+    Unsurprisingly, some real-world strategic interactions share similarities with popular parlour games---for example, chess, backgammon, or poker.
+    These games involve players sequentially selecting actions in pursuit of a desired outcome but could also include randomness (dice in backgammon) or private information (face-down cards in poker).
+    A situation with these characteristics may be described using an \emph{extensive-form game} where, within a suitably constructed directed tree, each vertex is assigned to a player who must select an incident arc to traverse.
+    This sequence of choices traces a path through the tree until a terminal vertex is reached and utility is awarded.
+    Randomness is incorporated by adding vertices where a lottery determines the traversed arc and private information is incorporated by partitioning a player's decision vertices into \emph{information sets}.
+    Precisely, the players are only aware of the current information set and, from among the vertices in this information set, are unable to discern the exact current vertex.
+
+    Recall the simple two-player game ``Rock, Paper, Scissors'' in which both players simultaneously reveal a rock, paper, or scissors hand sign.
+    Then, a winner is determined by applying the dominance relationships: rock beats scissors, scissors beats paper, and paper beats rock.
+    An extensive-form representation of this game is shown in \autoref{fig:extensive-rock-paper-scissors}.
+    The shaded regions represent information sets and a label $(x, y)$ on a terminal vertex indicates that Player 1 receives utility $x$ and Player 2 receives utility $y$.
+    We imitate simultaneous action selection by combining the possible outcomes of Player 1's actions into a single information set such that Player 2 must act without knowing the choice that was made.
+
+
+    \begin{figure}[t]
+        \centering
+        \input{tex/chapter2/figures/extensive_rock_paper_scissors}
+        \caption[``Rock, Paper, Scissors'' in Extensive Form]{An extensive-form representation of ``Rock, Paper, Scissors'' \parencite{Maschler2013}.}
+        \label{fig:extensive-rock-paper-scissors}
+    \end{figure}
+
+    Already, from the example of ``Rock, Paper, Scissors'', it should be obvious that the complete definition of an extensive-form game quickly becomes cumbersome.
+    A simplified model requires every player to implement a fixed strategy that will determine their behaviour throughout the game.
+    Specifically, a \emph{pure strategy} assigns unique actions to a player's information sets.
+    Knowing that player behaviour is entirely determined by the implemented strategies, we may view the game as a simultaneous selection of strategies rather than a sequential selection of actions.
+    This is captured using a \emph{normal-form game} $G = (N, (S_k)_{k \in N}, (u_k)_{k \in N})$ with
+    \begin{itemize}
+        \item a set of players $N = \{1, 2, \ldots, n\}$ for some $n \in \ZZ^+$,
+        \item a set of actions $S_k$ for each $k \in N$, and
+        \item a utility function $u_k : S_k \to \RR$ for each $k \in N$ where $S = S_1 \times S_2 \times \ldots, S_n$.
+    \end{itemize}
+    \nomenclature[A, 01]{$G$}{A normal-form game. \nomrefpage}%
+    \nomenclature[A, 02]{$N$}{The set of players in $G$. \nomrefpage}%
+    \nomenclature[A, 03]{$S_k$}{The set of actions belonging to Player $k \in N$ in $G$. \nomrefpage}%
+    \nomenclature[A, 04]{$S$}{The set of action profiles in $G$. \nomrefpage}%
+    \nomenclature[A, 05]{$u_k$}{The utility function belonging to Player $k \in N$ in $G$. \nomrefpage}%
+    Here, every player $k \in N$ simultaneously chooses an action $s_k \in S_k$ to form an \emph{action profile} (or \emph{pure strategy profile}) $s = (s_1, s_2, \ldots, s_n) \in S$ containing the choices of all participants.
+    The realisation of this action profile causes the player $k \in N$ to receive utility $u_k(s) = u_k(s_1, s_2, \ldots, s_n)$.
+    Notice that the actions within the normal-form representation of an extensive-form game correspond to the available pure strategies.
+
+    A player wanting to behave unpredictably might employ a \emph{mixed strategy}, which randomises among their pure strategies.
+    The space of mixed strategies belonging to Player $k \in N$ is denoted by
+    \[
+        \Delta_k
+            =
+            \left\{
+                \delta_k : S_k \to [0, 1] : \sum_{s_k \in S_k} \delta_k(s_k) = 1
+            \right\}
+    \]
+    and contains every probability distribution over the action set $S_k$.\footnote{
+        This characterisation of mixed strategies, to avoid measure-theoretic complications, implicitly assumes that the action sets $S_1, S_2, \ldots, S_n$ are finite.
+        An extension of this discussion to games with infinitely many actions can be found in \parencite[Chapter 4]{Owen2013}.
+    }
+    \nomenclature[A, 06]{$\Delta_k$}{The set of mixed strategies belonging to Player $k \in N$ in $G$. \nomrefpage}%
+    If the mixed strategy $\delta_k \in \Delta_k$ is selected, then $\delta_k(s_k)$ is interpreted as the probability that Player $k \in N$ plays the action $s_k \in S_k$.
+    Now, each player $k \in N$ can select a mixed strategy $\delta_k \in \Delta_k$ to form a \emph{(mixed) strategy profile} $\delta \in \Delta$ where $\Delta = \Delta_1 \times \Delta_2 \times \ldots \times \Delta_n$.
+    \nomenclature[A, 07]{$\Delta$}{The set of mixed strategy profiles in $G$. \nomrefpage}%
+    We say that a strategy profile $\delta \in \Delta$ is \emph{completely mixed} whenever $\delta_k(s_k) > 0$ for all players $k \in N$ and actions $s_k \in S_k$.
+
+    How can a player value a strategy profile $\delta \in \Delta$ when the utility functions $u_1, u_2, \ldots, u_n$ are only defined on the set of action profiles $S$?
+    Naturally, given any $k \in N$, we create an expected utility function $v_k : \Delta \to \RR$ such that
+    \begin{equation} \label{eq:expected-utility}
+        v_k(\delta)
+            = \sum_{s_1 \in S_1} \sum_{s_2 \in S_2} \ldots \sum_{s_n \in S_n} u_k(s_1, s_2, \ldots, s_n) \delta_1(s_1) \delta_2(s_2) \ldots \delta_n(s_n)
+    \end{equation}
+    for all $\delta \in \Delta$.
+    \nomenclature[A, 08]{$v_k$}{The expected utility function belonging to Player $k \in N$ in $G$. \nomrefpage}%
+    We say that $v_k(\delta)$ is the \emph{value} of the strategy profile $\delta \in \Delta$ to Player $k \in N$.\footnote{The
+        ability to consistently value mixed strategies via expected utility is a consequence of player preferences satisfying the von Neumann-Morgenstern axioms (see \parencite[Theorem 2.18]{Maschler2013}).
+    }
+    Formally, the normal-form game $(N, (\Delta_k)_{k \in N}, (v_k)_{k \in N})$ is called the \emph{mixed extension} of $G$ but, because our players have access to their mixed strategies, we will use $G$ itself to mean this mixed extension.
+
+    Intending to introduce incompetence to a narrower class of normal-form games in \autoref{sec:incompetent-games}, we should clarify the notions of a finite game and a zero-sum game.
+    We say that our normal-form game $G$ is \emph{finite} if, for every $k \in N$, the action set $S_k$ is finite.
+    We say that $G$ is \emph{zero-sum} when overall utility is conserved regardless of the game's outcome or, equivalently, whenever
+    \begin{equation} \label{eq:zero-sum-property}
+        \sum_{k \in N} u_k(s)
+            = \sum_{k \in N} u_k(s_1, s_2, \ldots, s_n)
+            = 0
+    \end{equation}
+    for all $s \in S$.
+    It is straightforward to show from \eqref{eq:expected-utility} and \eqref{eq:zero-sum-property} that the mixed extension of a zero-sum game is also zero-sum.
+
+    The solution concept that we are generally interested in finding when working with a normal-form game is the \emph{Nash equilibrium}.
+    This is a collection of strategies for which no player would benefit from unilaterally deviating and adopting an alternative strategy.
+    If $\delta \in \Delta$ is a strategy profile and $\delta_k \in \Delta_k$ is a strategy for Player $k \in N$, then $(\delta_k, \delta_{-k})$ denotes the strategy profile obtained by replacing the $k$\textsuperscript{th} entry of $\delta$ with $\delta_k$.
+    Using this notation to describe unilateral deviations, a Nash equilibrium is a profile $\delta^* = (\delta^*_1, \delta^*_2, \ldots, \delta^*_n) \in \Delta$ such that, for any player $k \in N$ and strategy $\delta_k \in \Delta(S_k)$, we have
+    \begin{equation} \label{eq:nash-equilibrium}
+        v_k\bigl(\delta_k, \delta^*_{-k}\bigr)
+            \le v_k(\delta^*).
+    \end{equation}
+    Nash \parencite{Nash1950} proved that an equilibrium always exists in a finite normal-form game.
+    A useful tool when computing these equilibria is the \emph{indifference principle}, which states that, under a mixed strategy equilibrium, any actions in $S_k$ played with non-zero probability must yield equal expected utility to Player $k \in N$ (see, for instance, \parencite[Theorem 5.18]{Maschler2013}).
+    If every equilibrium $\delta^* \in \Delta$ is completely mixed, then the game $G$ is said to be \emph{completely mixed}.
+
+    \autoref{fig:normal-rock-paper-scissors} shows a normal-form representation of ``Rock, Paper, Scissors'' derived from the extensive-form game in \autoref{fig:extensive-rock-paper-scissors}.
+    The actions belonging to Player 1 are presented in rows, the actions belonging to Player 2 are presented in columns, and an entry $(x, y)$ indicates that they receive utilities $x$ and $y$, respectively.
+    Aligning with the common usage of ``Rock, Paper, Scissors'' as a randomisation device, it is not a surprise that this game's single equilibrium---both players mixing uniformly over their actions---causes the players to win with equal probability.
+
+    Occasionally, the Nash equilibrium is not a suitable solution concept and a refinement is needed to further restrict the definition of rational behaviour.
+    A useful refinement in extensive-form games is the \emph{subgame perfect equilibrium}.
+    This is a Nash equilibrium that remains resilient to unilateral deviations whenever it is restricted to an arbitrary \emph{subgame}---a subtree that does not divide any information sets.
+    The desirability of a subgame perfect equilibrium comes from its elimination of incredible threats or irrational strategies that attempt to dissuade opponents from particular actions.
+    Schelling \parencite{Schelling1980} gives an example of an incredible threat where
+    \begin{quote}
+        ``if I threaten to blow us both to bits unless you close the window, you know that I won't unless I have somehow managed to leave myself no choice in the matter.''
+    \end{quote}
+    We will always seek to eliminate these rational inconsistencies when solving games with sequential action selection.
+
+    \begin{figure}[h]
+        \centering
+        \input{tex/chapter2/figures/normal_rock_paper_scissors}
+        \caption[``Rock, Paper, Scissors'' in Normal Form]{A normal-form representation of ``Rock, Paper, Scissors'' \parencite{Maschler2013}.}
+        \label{fig:normal-rock-paper-scissors}
+    \end{figure}
+
+
+
+\section{Matrix Games and Bimatrix Games} \label{sec:matrix-games-and-bimatrix-games}
+    The tabular depiction of ``Rock, Paper, Scissors'' in \autoref{fig:normal-rock-paper-scissors} correctly suggests that finite two-player normal-form games can be represented as matrices.
+    Suppose $G$ is a finite two-player normal-form game and, without loss of generality, take Player 1's action set to be $S_1 = A = \{a_1, a_2, \ldots, a_{m_1}\}$ and Player 2's action set to be $S_2 = B = \{b_1, b_2, \ldots, b_{m_2}\}$ for some $m_1, m_2 \in \ZZ^+$.
+    \nomenclature[B, 01]{$G$}{A bimatrix game. \nomrefpage}%
+    \nomenclature[B, 02]{$A$}{The set of actions belonging to Player 1 in $G$. \nomrefpage}%
+    \nomenclature[B, 03]{$B$}{The set of actions belonging to Player 2 in $G$. \nomrefpage}%
+    \nomenclature[B, 04]{$m_k$}{The number of actions available to Player $k \in \{1, 2\}$ in $G$. \nomrefpage}%
+    The \emph{utility matrices} $R_1 \in \RR^{m_1 \times m_2}$ and $R_2 \in \RR^{m_1 \times m_2}$ encode the utilities allocated to Player 1 and Player 2 for every possible combination of actions; that is,
+    \[
+        R_1[i, j]
+            = u_1(a_i, b_j)
+        \quad\text{and}\quad
+        R_2[i, j]
+            = u_2(a_i, b_j)
+    \]
+    for all $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$.
+    \nomenclature[B, 05]{$R_k$}{The utility matrix belonging to Player $k \in \{1, 2\}$ in $G$. \nomrefpage}%
+    We might think of $G$ as a game wherein, after Player 1 chooses a row index $i = 1, 2, \ldots, m_1$ and Player 2 chooses a column index $j = 1, 2, \ldots, m_2$, they are awarded utilities $u_1(a_i, b_j)$ and $u_2(a_i, b_j)$, respectively.
+    This interpretation allows us to write $u_1(i, j) = u_1(a_i, b_j)$ and $u_2(i, j) = u_2(a_i, b_j)$ for any $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$.
+    A game admitting this representation is called an $m_1 \times m_2$ \emph{bimatrix game}.
+
+    The mixed strategy spaces $\Delta_1$ and $\Delta_2$ contain probability distributions over the finite action sets $A$ and $B$.
+    It is convenient to represent these mixed strategies as stochastic row vectors from the sets
+    \[
+        \vec{X}
+            =
+            \left\{
+                \vec{x}
+                    = (x_1, x_2, \ldots, x_{m_1}) \in [0, 1]^{m_1}
+                    : \sum_{i = 1}^{m_1} x_i = 1
+            \right\}
+    \]
+    and
+    \[
+        \vec{Y}
+            =
+            \left\{
+                \vec{y}
+                    = (y_1, y_2, \ldots, y_{m_2}) \in [0, 1]^{m_2}
+                    : \sum_{j = 1}^{m_2} y_j = 1
+            \right\}.
+    \]
+    \nomenclature[B, 06]{$\vec{X}$}{The set of mixed strategies belonging to Player 1 in $G$. \nomrefpage}%
+    \nomenclature[B, 07]{$\vec{Y}$}{The set of mixed strategies belonging to Player 2 in $G$. \nomrefpage}%
+    If Player 1 chooses the mixed strategy $\vec{x} \in \vec{X}$ and Player 2 chooses the mixed strategy $\vec{y} \in \vec{Y}$, then the actions $a_i$ and $b_j$ are played with probability $x_i$ and $y_j$, respectively.
+    Adapting our expected utility functions $v_1 : \Delta \to \RR$ and $v_2 : \Delta \to \RR$ to the domain $\vec{X} \times \vec{Y}$, the value of these strategies to Player $k = 1, 2$ is
+    \begin{equation} \label{eq:bimatrix-expected-utility}
+        v_k(\vec{x}, \vec{y})
+            = \sum_{i = 1}^{m_1} \sum_{j = 1}^{m_2} x_i u_k(i, j) y_j
+            = \vec{x} R_k \vec{y}
+    \end{equation}
+    Next, by combining \eqref{eq:nash-equilibrium} and \eqref{eq:bimatrix-expected-utility}, observe that a strategy profile $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ is a Nash equilibrium in the bimatrix game $G$ if and only if
+    \begin{equation} \label{eq:bimatrix-nash-equilibrium}
+        \vec{x} R_1 (\vec{y}^*)^\transp
+            \le \vec{x}^* R_1 (\vec{y}^*)^\transp
+        \quad\text{and}\quad
+        \vec{x}^* R_2 \vec{y}^\transp
+            \le \vec{x}^* R_2 (\vec{y}^*)^\transp
+    \end{equation}
+    given any deviations $\vec{x} \in \vec{X}$ and $\vec{y} \in \vec{Y}$.
+
+    \begin{figure}[t]
+        \centering
+        \input{tex/chapter2/figures/battle_of_the_sexes}
+        \caption[``Battle of the Sexes'' in Normal-Form]{A normal-form representation of ``Battle of the Sexes''.}
+        \label{fig:battle-of-the-sexes}
+    \end{figure}
+
+    A simple bimatrix game known as ``Battle of the Sexes'' is shown in \autoref{fig:battle-of-the-sexes} and is represented by the utility matrices
+    \[
+        R_1
+            =
+            \begin{pmatrix}
+                2 & 0 \\
+                0 & 1 \\
+            \end{pmatrix}
+        \quad\text{and}\quad
+        R_2
+            =
+            \begin{pmatrix}
+                1 & 0 \\
+                0 & 2 \\
+            \end{pmatrix}.
+    \]
+    Here, without any communication, two players must individually decide between going to a football match or a concert.
+    Although Player 1 prefers the football match and Player 2 prefers the concert, they must attend the same event to receive a non-zero utility reward.
+    The three possible equilibrium solutions $(\vec{x}^*, \vec{y}^*)$, which each achieve different values of $\vec{v}(\vec{x}^*, \vec{y}^*) = (v_1(\vec{x}^*, \vec{y}^*), v_2(\vec{x}^*, \vec{y}^*))$, are:
+    \begin{itemize}
+        \item $\vec{x}^* = (1, 0)$ and $\vec{y}^* = (1, 0)$ with expected utility $\vec{v}(\vec{x}^*, \vec{y}^*) = (2, 1)$,
+        \item $\vec{x}^* = (0, 1)$ and $\vec{y}^* = (0, 1)$ with expected utility $\vec{v}(\vec{x}^*, \vec{y}^*) = (1, 2)$, and
+        \item $\vec{x}^* = (\nicefrac{2}{3}, \nicefrac{1}{3})$ and $\vec{y}^* = (\nicefrac{1}{3}, \nicefrac{2}{3})$ with expected utility $\vec{v}(\vec{x}^*, \vec{y}^*) = (\nicefrac{2}{3}, \nicefrac{2}{3})$.
+    \end{itemize}
+    This demonstrates that a general bimatrix game might possess multiple Nash equilibria and that these do not necessarily award the same expected utilities.
+
+    Under the additional assumption that the bimatrix game $G$ is zero-sum, we know that $R_1 = - R_2$ since $u_1(i, j) + u_2(i, j) = 0$ for all $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$.
+    Hence, these utility allocations can be encoded in a single matrix $R \in \RR^{m_1 \times m_2}$ where
+    \[
+        R[i, j]
+            = u_1(i, j)
+            = - u_2(i, j)
+    \]
+    for each $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$.
+    A finite two-player zero-sum game $G$ is called an $m_1 \times m_2$ \emph{matrix game} and $R$ is its \emph{utility matrix}.
+    \nomenclature[C, 01]{$G$}{A matrix game. \nomrefpage}%
+    \nomenclature[C, 04]{$R$}{The utility matrix of $G$. \nomrefpage}%
+    We can describe a matrix game by giving a single utility function $u : A \times B \to \RR$ where
+    \[
+        u(a_i, b_j)
+            = u(i, j)
+            = u_1(i, j)
+            = - u_2(i, j)
+    \]
+    for all $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$.
+    \nomenclature[C, 02]{$u$}{The utility function of $G$. \nomrefpage}%
+    The expected utilities of the strategy profile $(\vec{x}, \vec{y}) \in \vec{X} \times \vec{Y}$ are expressed by rewriting \eqref{eq:bimatrix-expected-utility} as
+    \begin{equation} \label{eq:matrix-expected-utility}
+        v_1(\vec{x}, \vec{y})
+            = \sum_{i = 1}^{m_1} \sum_{j = 1}^{m_2} x_i u_1(i, j) y_j
+            = \vec{x} R \vec{y}^\transp
+            = \sum_{i = 1}^{m_1} \sum_{j = 1}^{m_2} x_i u_2(i, j) y_j
+            = - v_2(\vec{x}, \vec{y}).
+    \end{equation}
+    This motivates our definition of a value function $v : \vec{X} \times \vec{Y} \to \RR$ where $v(\vec{x}, \vec{y}) = \vec{x} R \vec{y}^\transp$ for all $(\vec{x}, \vec{y}) \in \vec{X} \times \vec{Y}$.
+    \nomenclature[C, 03]{$v$}{The expected utility function of $G$. \nomrefpage}%
+    If Player 1 selects $\vec{x} \in \vec{X}$ and Player 2 selects $\vec{y} \in \vec{Y}$, then they expect to receive utilities $v(\vec{x}, \vec{y})$ and $-v(\vec{x}, \vec{y})$, respectively.
+    We might view $G$ as a game in which Player 1 chooses their strategy $\vec{x} \in \vec{X}$ to maximise $v(\vec{x}, \vec{y}) = \vec{x} R \vec{y}^\transp$ and Player 2 chooses their strategy $\vec{y} \in \vec{Y}$ to minimise $v(\vec{x}, \vec{y}) = \vec{x} R \vec{y}^\transp$.
+    The equilibrium inequalities from \eqref{eq:bimatrix-nash-equilibrium} can be rearranged to show that the strategy profile $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ is an equilibrium if and only if
+    \begin{equation} \label{eq:matrix-nash-equilibrium}
+        \vec{x} R (\vec{y}^*)^\transp
+            \le \vec{x}^* R (\vec{y}^*)^\transp
+            \le \vec{x}^* R \vec{y}^\transp
+    \end{equation}
+    for every $\vec{x} \in \vec{X}$ and $\vec{y} \in \vec{Y}$.
+    The strategies $\vec{x}^*$ and $\vec{y}^*$ are called \emph{optimal strategies} to emphasise their unique properties in zero-sum games.
+    Namely, taking arbitrary equilibria $(\vec{x}^*, \vec{y}^*), (\vec{x}^\sdagger, \vec{y}^\sdagger) \in \vec{X} \times \vec{Y}$, we know that they have equal value $v(\vec{x}^*, \vec{y}^*) = v(\vec{x}^\sdagger, \vec{y}^\sdagger)$ and that $(\vec{x}^*, \vec{y}^\sdagger)$ and $(\vec{x}^\sdagger, \vec{y}^*)$ are also equilibria (see \parencite[Theorem 2.1.2]{Owen2013}).\footnote{
+        Generally, these properties cannot be extended to equilibrium solutions in bimatrix games.
+        Recall that the equilibria in ``Battle of the Sexes'' did not yield the same expected utility and that their component strategies could not be interchanged to produce new equilibria.
+    }
+    This common value shared among equilibria is called the \emph{game value} of $G$ and is denoted by $\val(G)$.
+    \nomenclature[C, 05]{$\val(G)$}{The game value of $G$. \nomrefpage}%
+    The existence of optimal mixed strategies in matrix games is established by von Neumann's \parencite{vonNeumann1959} minimax theorem, which proves the equality
+    \begin{equation} \label{eq:minimax-equality}
+        \val(G)
+            = \max_{\vec{x} \in \vec{X}} \min_{\vec{y} \in \vec{Y}} \vec{x} R \vec{y}^\transp
+            = \min_{\vec{y} \in \vec{Y}} \max_{\vec{x} \in \vec{X}} \vec{x} R \vec{y}^\transp.
+    \end{equation}
+    Accordingly, the equilibrium of a zero-sum game is also a \emph{minimax solution} in which both players minimise their worst-case losses.
+    We will reguarly need to find optimal strategies and game values in matrix games, a task that is often achieved through linear programming.
+    Specifically, if $\vec{x}^* \in \vec{X}$, $\vec{y}^* \in \vec{Y}$, and $\gamma \in \RR$ solve the primal linear program
+    \begin{equation} \label{lp:player1-program}
+    \tag{LP1}
+        \begin{array}{lr@{}ll}
+            \text{maximise} & \multicolumn{1}{l}{\gamma} & & \\
+            \text{subject to} & \gamma - \displaystyle\sum\limits_{i = 1}^{m_1} u(i, j) & x^*_i \le 0, &  j = 1, 2, \ldots, m_2, \\
+             & \displaystyle\sum\limits_{i = 1}^{m_1} & x^*_i = 1, & \\
+             & & x^*_i \ge 0, & i = 1, 2, \ldots, m_1, \\
+        \end{array}
+    \end{equation}
+    and the dual linear program
+    \begin{equation} \label{lp:player2-program}
+    \tag{LP2}
+        \begin{array}{lr@{}ll}
+            \text{minimise} & \multicolumn{1}{l}{\gamma} & & \\
+            \text{subject to} & \gamma - \displaystyle\sum\limits_{j = 1}^{m_2} u(i, j) & y^*_j \ge 0, & i = 1, 2, \ldots, m_1, \\
+             & \displaystyle\sum\limits_{j = 1}^{m_2} & y^*_j = 1, & \\
+             & & y^*_j \ge 0, & j = 1, 2, \ldots, m_2, \\
+        \end{array}
+    \end{equation}
+    then $\vec{x}^*$ is an optimal strategy for Player 1, $\vec{y}^*$ is an optimal strategy for Player 2, and $\gamma$ is the game value
+    (see \parencite[Chapter 3]{Owen2013}).
+
+
+
+\section{Incompetent Games}
+\label{sec:incompetent-games}
+    Beck and Filar \parencite{Beck2007} introduce incompetence to matrix games by allowing players to accidentally deviate from their proposed strategies.\footnote{We
+        must, for the sake of brevity, only discuss incompetence in matrix games whose selectable and executable actions coincide.
+        A broader definition of incompetence in matrix and bimatrix games can be found in \parencite{Beck2013}, \parencite{Beck2012}, and \parencite{Beck2007}.
+    }
+    They construct a pair of \emph{incompetence matrices} $Q_1 \in \RR^{m_1 \times m_1}$ and $Q_2 \in \RR^{m_2 \times m_2}$ such that:
+    \begin{itemize}
+        \item $q_1(a_i, a_\alpha) = q_1(i, \alpha) = Q_1[i, \alpha]$ is the probability that Player 1 executes action $a_\alpha$ after selecting action $a_i$ for all $i, \alpha = 1, 2, \ldots, m_1$, and
+        \item $q_2(b_j, b_\beta) = q_2(j, \beta) = Q_2[j, \beta]$ is the probability that Player 2 executes action $b_\beta$ after selecting action $b_j$ for all $j, \beta = 1, 2, \ldots, m_2$.
+    \end{itemize}
+    \nomenclature[D, 01]{$Q_k$}{An incompetence matrix belonging to Player $k \in \{1, 2\}$. \nomrefpage}%
+    If Player 1 chooses $a_i$ and Player 2 chooses $b_j$ for some $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$, then the stochastic row vectors
+    \[
+        \vec{q}_1(a_i)
+            = \vec{q}_1(i)
+            = (q_1(i, \alpha))_{\alpha = 1}^{m_1}
+        \quad\text{and}\quad
+            \vec{q}_2(b_j)
+            = \vec{q}_2(j)
+            = (q_2(j, \beta))_{\beta = 1}^{m_2}
+    \]
+    are interpreted as probability distributions over the executable actions belonging to Player 1 and Player 2, respectively.
+    What are the expected utilities of the action profile $(a_i, b_j)$ under incompetence?
+    Consider a function $u_\ms{Q_1, Q_2} : A \times B \to \RR$ where, by taking the probability-weighted sum over the possible action profiles, we have
+    \begin{equation} \label{eq:incompetent-utility}
+        u_\ms{Q_1, Q_2}(a_i, b_j)
+            = u_\ms{Q_1, Q_2}(i, j)
+            = \sum_{\alpha = 1}^{m_1} \sum_{\beta = 1}^{m_2} q_1(i, \alpha) u(\alpha, \beta) q_2(j, \beta)
+            = \vec{q}_1(i) R \vec{q}_2(j)^\transp
+    \end{equation}
+    for all $i = 1, 2, \ldots, m_1$ and $j = 1, 2, \ldots, m_2$.
+    \nomenclature[D, 03]{$u_\ms{Q_1, Q_2}$}{The utility function of $G_\ms{Q_1, Q_2}$. \nomrefpage}%
+    Clearly, when accounting for the effects of incompetence, $u_\ms{Q_1, Q_2}$ becomes Player 1's utility function and $-u_\ms{Q_1, Q_2}$ becomes Player 2's utility function.
+    An \emph{incompetent (matrix) game} $G_\ms{Q_1, Q_2}$ replaces the utility functions of the competent matrix game $G$ with these incompetence-adjusted utility functions.
+    \nomenclature[D, 02]{$G_\ms{Q_1, Q_2}$}{An incompetent game. \nomrefpage}%
+    A mixed strategy profile $(\vec{x}, \vec{y}) \in \vec{X} \times \vec{Y}$ in this incompetent game has value $v_\ms{Q_1, Q_2}(\vec{x}, \vec{y})$ to Player 1 and value $-v_\ms{Q_1, Q_2}(\vec{x}, \vec{y})$ to Player 2 where
+    \begin{equation} \label{eq:incompetent-expected-utility}
+        v_\ms{Q_1, Q_2}(\vec{x}, \vec{y})
+            = \sum_{i = 1}^{m_1} \sum_{j = 1}^{m_2} x_i u_\ms{Q_1, Q_2}(i, j) y_j
+            = \sum_{i = 1}^{m_1} \sum_{j = 1}^{m_2} x_i \vec{q}_1(i) R \vec{q}_2(j)^\transp y_j
+            = \vec{x} Q_1 R Q_2^\transp \vec{y}^\transp.
+    \end{equation}
+    \nomenclature[D, 04]{$v_\ms{Q_1, Q_2}$}{The expected utility function of $G_\ms{Q_1, Q_2}$. \nomrefpage}%
+    This shows that $G_\ms{Q_1, Q_2}$ is represented by the utility matrix $R_\ms{Q_1, Q_2} = Q_1 R Q_2^\transp$.
+    \nomenclature[D, 05]{$R_\ms{Q_1, Q_2}$}{The utility matrix of $G_\ms{Q_1, Q_2}$. \nomrefpage}%
+    Henceforth, whenever the choice of incompetence matrices is unambiguous, we substitute the subscript ``$Q$'' for ``$Q_1, Q_2$'', as in $G_\ms{Q}$, $u_\ms{Q}$, $v_\ms{Q}$, and $R_\ms{Q}$.
+
+    Primarily, we are interested in the behaviour of incompetent games under variations in their incompetence matrices.
+    These variations are captured by Beck and Filar \parencite{Beck2007} using \emph{learning trajectories}, which are functions that map from the interval $[0, 1]$ to the set of $m \times m$ stochastic matrices for some $m \in \ZZ^+$.
+    The learning trajectories $Q_1 : [0, 1] \to \RR^{m_1 \times m_1}$ and $Q_2 : [0, 1] \to \RR^{m_2 \times m_2}$ parameterise a family of incompetent games
+    \[
+        \left\{
+            G_{\lambda, \mu}
+                = G_{Q_1(\lambda), Q_2(\mu)}
+                : \lambda, \mu \in [0, 1]
+        \right\}.
+    \]
+    \nomenclature[E, 01]{$Q_k(\funcdot)$}{A learning trajectory belonging to Player $k \in \{1, 2\}$. \nomrefpage}%
+    We shall refer to this family of games as a \emph{parameterised incompetent (matrix) game} and write $G_\ms{Q_1(\funcdot), Q_2(\funcdot)}$ or $G_\ms{Q(\funcdot)}$.
+    \nomenclature[E, 02]{$G_\ms{Q_1(\cdot), Q_2(\cdot)}$}{A parameterised incompetent game. \nomrefpage}
+    Here, the expressions $Q_1(\funcdot)$ and $Q_2(\funcdot)$ serve as a reminder that these are learning trajectories, not incompetence matrices.
+    Observe that, given any \emph{learning parameters} $\lambda, \mu \in [0, 1]$, the incompetent game $G_{\lambda, \mu}$ has $Q_1(\lambda)$ as Player 1's incompetence matrix, $Q_2(\mu)$ as Player 2's incompetence matrix, and $R_{\lambda, \mu} = Q_1(\lambda) R Q_2(\mu)^\transp$ as its utility matrix.
+    \nomenclature[E, 03]{$G_{\lambda, \mu}$}{The incompetent game for any $\lambda, \mu \in [0, 1]$. \nomrefpage}%
+    \nomenclature[E, 04]{$R_{\lambda, \mu}$}{The utility matrix of $G_{\lambda, \mu}$ for any $\lambda, \mu \in [0, 1]$. \nomrefpage}%
+
+    Among the collection of $m \times m$ incompetence matrices for some $m \in \ZZ^+$, Beck and Filar \parencite{Beck2007} associate $\nicefrac{1}{m} \cdot J_m$ with \emph{uniform incompetence} and $I_m$ with \emph{complete competence} where $J_m$ is the $m \times m$ all-one matrix and $I_m$ is the $m \times m$ identity matrix.
+    Intuitively, uniform incompetence causes a player to select actions uniformly at random and complete competence causes a player to select actions with absolute precision.
+    They also restrict their discussion to linear learning trajectories $Q : [0, 1] \to \RR^{m \times m}$ satisfying
+    \[
+        Q(\lambda)
+            = Q(0) (1 - \lambda) + Q(1) \lambda
+    \]
+    for all $\lambda, \mu \in [0, 1]$.\footnote{An
+        empirical exploration of several additional learning trajectories---namely, sigmoidal, exponential, power-law, and discontinuous learning trajectories---is provided in \parencite[Section 4.4]{Beck2013}.
+    }
+
+    Consider, for instance, a $2 \times 2$ matrix game $G$ represented by the utility matrix $R \in \RR^{2 \times 2}$ where
+    \[
+        R
+            =
+            \begin{pmatrix*}[r]
+                1 & -1 \\
+                3 & 1 \\
+            \end{pmatrix*}.
+    \]
+    We might introduce incompetence by assigning Player 1 the learning trajectory $Q_1 : [0, 1] \to \RR^{2 \times 2}$ and Player 2 the learning trajectory $Q_2 : [0, 1] \to \RR^{2 \times 2}$ where
+    \[
+        Q_1(\lambda)
+            =
+            \begin{pmatrix}
+                \nicefrac{1}{2} & \nicefrac{1}{2} \\
+                \nicefrac{1}{2} & \nicefrac{1}{2}
+            \end{pmatrix}
+            (1 - \lambda)
+            +
+            \begin{pmatrix}
+                1 & 0 \\
+                0 & 1 \\
+            \end{pmatrix}
+            \lambda
+        \quad\text{and}\quad
+        Q_2(\mu)
+            =
+            \begin{pmatrix}
+                \nicefrac{1}{2} & \nicefrac{1}{2} \\
+                \nicefrac{1}{2} & \nicefrac{1}{2}
+            \end{pmatrix}
+            (1 - \mu)
+            +
+            \begin{pmatrix}
+                1 & 0 \\
+                0 & 1 \\
+            \end{pmatrix}
+            \mu
+    \]
+    for every $\lambda, \mu \in [0, 1]$.
+    Notice that, under these learning trajectories, both players transition linearly from uniform incompetence to complete competence.
+    This produces a parameterised incompetent game $G_\ms{Q(\funcdot)}$ and, for all $\lambda, \mu \in [0, 1]$, the incompetent game $G_{\lambda, \mu}$ is a matrix game represented by the utility matrix $R_{\lambda, \mu} = Q_1(\lambda) R Q_2(\mu)^\transp$.
+    If Player 1's learning parameter is $\lambda = 1$ and Player 2's learning parameter is $\mu = 0$, then the incompetent game $G_{1, 0}$ has the utility matrix
+    \[
+        R_{1, 0}
+            = Q_1(1) R Q_2(0)^\transp
+            =
+            \begin{pmatrix}
+                1 & 0 \\
+                0 & 1 \\
+            \end{pmatrix}
+            \begin{pmatrix*}[r]
+                1 & -1 \\
+                3 & 1 \\
+            \end{pmatrix*}
+            \begin{pmatrix}
+                \nicefrac{1}{2} & \nicefrac{1}{2} \\
+                \nicefrac{1}{2} & \nicefrac{1}{2} \\
+            \end{pmatrix}
+            =
+            \begin{pmatrix}
+                0 & 0 \\
+                2 & 2 \\
+            \end{pmatrix}.
+    \]
+    Hence, $\vec{x}^* = (0, 1)$ is an optimal strategy for Player 1, $\vec{y}^* = (q, 1 - q)$ with $q \in [0, 1]$ is an optimal strategy for Player 2, and the game value is $\val(G_{1, 0}) = 2$.
+    Alternatively, if Player 1's learning parameter is $\lambda = 0$ and Player 2's learning parameter is $\mu = 1$, then the utility matrix of $G_{0, 1}$ is
+    \[
+        R_{0, 1}
+            = Q_1(0) R Q_2(1)^\transp
+            =
+            \begin{pmatrix}
+                \nicefrac{1}{2} & \nicefrac{1}{2} \\
+                \nicefrac{1}{2} & \nicefrac{1}{2} \\
+            \end{pmatrix}
+            \begin{pmatrix*}[r]
+                1 & -1 \\
+                3 & 1 \\
+            \end{pmatrix*}
+            \begin{pmatrix}
+                 1 & 0 \\
+                 0 & 1 \\
+            \end{pmatrix}
+            =
+            \begin{pmatrix}
+                2 & 0 \\
+                2 & 0 \\
+            \end{pmatrix}.
+    \]
+    This means that $\vec{x}^* = (p, 1 - p)$ with $p \in [0, 1]$ is an optimal strategy for Player 1, $\vec{y}^* = (0, 1)$ is an optimal strategy for Player 2, and the game value is $\val(G_{0, 1}) = 0$.
+    The dependence of the game value $\val(G_{\lambda, \mu})$ on the learning parameters $\lambda, \mu \in [0, 1]$ is shown in \autoref{fig:parameterised-incompetent-games-a}.
+
+    Finally, to motivate our subsequent discussion of the variational properties of parameterised incompetent games, several additional examples have been compiled in \autoref{tab:parameterised-incompetent-games} and \autoref{fig:parameterised-incompetent-games}.
+    A different $G_\ms{Q(\funcdot)}$ is produced for every combination of a utility matrix $R$, Player 1's learning trajectory $Q_1(\funcdot)$, and Player 2's learning trajectory $Q_2(\funcdot)$.
+    We will further explore the features of these parameterised incompetent games in \autoref{chp:a-strategic-perspective}.
+    
+    \begin{table}[b]
+        \centering
+        \caption[Collection of Parameterised Incompetent Games]{The utility matrices ($R$) and learning trajectories ($Q_1$ and $Q_2$) that define a collection of parameterised incompetent games.}
+        \label{tab:parameterised-incompetent-games}
+        \input{tex/chapter2/figures/parameterised_incompetent_games}
+    \end{table}
+
+
+
+    \begin{figure}[p]
+        \centerfloat
+        \begin{minipage}{\textwidth + 1.5in}
+            \subbottom[\label{fig:parameterised-incompetent-games-a}]%
+                {\input{tex/chapter2/figures/incompetent_game_plot_a.pgf}}
+            \hfill
+            \subbottom[\label{fig:parameterised-incompetent-games-b}]%
+                {\input{tex/chapter2/figures/incompetent_game_plot_b.pgf}}
+
+            \subbottom[\label{fig:parameterised-incompetent-games-c}]%
+                {\input{tex/chapter2/figures/incompetent_game_plot_c.pgf}}
+            \hfill
+            \subbottom[\label{fig:parameterised-incompetent-games-d}]%
+                {\input{tex/chapter2/figures/incompetent_game_plot_d.pgf}}
+
+            \subbottom[\label{fig:parameterised-incompetent-games-e}]%
+                {\input{tex/chapter2/figures/incompetent_game_plot_e.pgf}}
+            \hfill
+            \subbottom[\label{fig:parameterised-incompetent-games-f}]%
+                {\input{tex/chapter2/figures/incompetent_game_plot_f.pgf}}
+        \caption[Game Values of Parameterised Incompetent Games]{The dependence of the game value $\val(G_{\lambda, \mu})$ on learning parameters $\lambda, \mu \in [0, 1]$ for each parameterised incompetent game defined in \autoref{tab:parameterised-incompetent-games}. Generated using \texttt{incompetent\_game\_plot.py}.}
+        \label{fig:parameterised-incompetent-games}
+        \end{minipage}
+    \end{figure}
