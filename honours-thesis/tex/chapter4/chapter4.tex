@@ -585,7 +585,7 @@
     \]
     of forgoing learning.
     Define $p_1 = 1 - p_0$ and $q_1 = 1 - q_0$ for the sake of notational compactness.
-    Also, letting $s_{a, b} = (i + a, b + j)$ for all $a \in \calA(\ell)$ and $b \in \calB(\ell)$, define some additional auxiliary quantities
+    Also, letting $s_{a, b} = (i + a, j + b)$ for all $a \in \calA(\ell)$ and $b \in \calB(\ell)$, define some additional auxiliary quantities
     \begin{equation}  \label{eq:extension-constants}
         V^k_{a, b}
             =
@@ -677,7 +677,7 @@
     \end{equation}
     A method for calculating solutions to \eqref{eq:extension-maximisation-1} and \eqref{eq:extension-maximisation-2} is provided in \autoref{alg:extension-algorithm} and verified in \autoref{prop:extension-algorithm-verification}.
     Note that a \emph{best response} is a strategy that maximises the player's utility conditional on their opponent's selected strategy.
-    We claim that this method computes every solution when the discounted incremental learning game is \emph{non-degenerate} at the state $\ell$; that is, when every pure strategy has no completely mixed best responses.
+    We claim that this method computes every solution when the discounted incremental learning game is \emph{non-degenerate} at the state $\ell$, that is, when every pure strategy has no completely mixed best responses.
     This assumption ensures that there are finitely many solutions, which allows us to exhaustively find every equilibrium.\footnote{The
         assumption of non-degeneracy is used in several game-theoretic algorithms, including the support enumeration algorithm that inspires \autoref{alg:extension-algorithm} (see, for example, \parencite[Algorithm 3.4]{vonStengel2007}).
     }

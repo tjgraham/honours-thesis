@@ -246,7 +246,7 @@
 
     \begin{proof}
         Here, to argue by contraposition, consider an arbitrary incompetent game $G_\ms{Q}$.
-        Additionally, we will assume that Player 1's incompetence matrix $Q_1$ is singular such that, for some distinct indices $I \subseteq \{1, 2, \ldots, m_1\}$, the row vectors $\{q_1(i) : i \in I\}$ are linearly dependent.
+        Additionally, we will assume that Player 1's incompetence matrix $Q_1$ is singular such that, for some distinct indices $I \subseteq \{1, 2, \ldots, m_1\}$, the row vectors $\{\vec{q}_1(i) : i \in I\}$ are linearly dependent.
         So, there exists non-zero coefficients $\{\theta_i \in \RR : i \in I\}$ satisfying
         \begin{equation} \label{temp:non-singular-incompetence-matrices-1}
             \sum_{i \in I} \theta_i \vec{q}_1(i)
@@ -262,17 +262,17 @@
         after rearranging the equality in \eqref{temp:non-singular-incompetence-matrices-1}.
         Next, to identify a relationship between the coefficients, observe that
         \begin{equation} \label{temp:non-singular-incompetence-matrices-3}
-            \left( \sum_{i \in I^+} \theta_i \vec{q}_1(i) \right) \vec{1}^\transp
-                = - \left( \sum_{i \in I^-} \theta_i \vec{q}_1(i) \right) \vec{1}^\transp
+            \left( \sum_{i \in I^+} \theta_i \vec{q}_1(i) \right) \vec{1}_{m_1}^\transp
+                = - \left( \sum_{i \in I^-} \theta_i \vec{q}_1(i) \right) \vec{1}_{m_1}^\transp
             \quad\text{implies}\quad
             \sum_{i \in I^+} \theta_i
                 = - \sum_{i \in I^-} \theta_i
         \end{equation}
-        where $\vec{1}^\transp \in \RR^{1 \times m_1}$ is the $1 \times m_1$ all-ones row vector.
+        where $\vec{1}_{m_1}^\transp \in \RR^{1 \times m_1}$ is the $1 \times m_1$ all-ones row vector.
         Of course, we can rescale these coefficients to ensure that both the left-hand side and right-hand side of \eqref{temp:non-singular-incompetence-matrices-3} sum to unity.
         This allows us to interpret the vectors $(\theta_i : i \in I^+)$ and $(-\theta_i : i \in I^-)$ as probability distributions over the sets of actions $\{a_i : i \in I^+\}$ and $\{a_i : i \in I^-\}$, respectively.
 
-        Let $(\vec{x}^*, \vec{y}^*)$ be an equilibrium of the incompetent game $G_\ms{Q}$.
+        Let $(\vec{x}^*, \vec{y}^*) \in \vec{X} \times \vec{Y}$ be an equilibrium of the incompetent game $G_\ms{Q}$.
         Moreover, define a constant $\alpha \in \RR^+$ such that $x^*_i + \alpha \theta_i \ge 0$ for all $i \in I^-$ and $x^*_{i'} + \alpha \theta_{i'} = 0$ for some $i' \in I^-$.
         A suitable choice for this constant is
         \begin{equation} \label{temp:non-singular-incompetence-matrices-4}
@@ -344,7 +344,7 @@
                 = \gamma_2 \vec{1}_{m_2}
         \end{equation}
         where $\gamma_1 = -\gamma_2 = \val(G)$ and $\vec{1}_{m_1} \in \RR^{1 \times m_1}$ and $\vec{1}_{m_2} \in \RR^{1 \times m_2}$ are all-ones row vectors.
-        Given that $Q_1$ and $Q_2$ are stochastic matrices, setting $R Q_2^\transp (\vec{y}^*)^\transp = \gamma_1 \vec{1}_{m_1}$ and $\vec{x}^* Q_1 R = \gamma_2 \vec{1}_{m_2}$ gives
+        Given that $Q_1$ and $Q_2$ are stochastic matrices, setting $R Q_2^\transp (\vec{y}^*)^\transp = \gamma_1 \vec{1}_{m_1}^\transp$ and $\vec{x}^* Q_1 R = \gamma_2 \vec{1}_{m_2}$ gives
         \begin{equation} \label{temp:competent-game-equilibrium-2}
             Q_1 R Q_2^\transp (\vec{y}^*)^\transp
                 = \gamma_1 Q_1 \vec{1}_{m_1}^\transp
@@ -805,7 +805,7 @@
     \end{proposition}
 
     \begin{proof}
-        We know that, for all $\lambda, \mu \in [0, 1]$, the spaces of executable strategy spaces satisfy $\vec{E}_1(\lambda) \subseteq \vec{E}_1(\lambda^*)$ and $\vec{E}_2(\mu) \subseteq \vec{E}_2(\mu^*)$.
+        We know that, for all $\lambda, \mu \in [0, 1]$, the spaces of executable strategy satisfy $\vec{E}_1(\lambda) \subseteq \vec{E}_1(\lambda^*)$ and $\vec{E}_2(\mu) \subseteq \vec{E}_2(\mu^*)$.
         Thus, according to \autoref{lem:comparable-skill-inequality}, we obtain
         \[
             \val\big(G_{\lambda, \mu^*}\big)
